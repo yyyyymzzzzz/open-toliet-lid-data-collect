@@ -1,0 +1,312 @@
+<section class="sec" id="motion" data-nav="示教与回放">
+  <div class="wrap">
+    <header class="sec-head motion-heading"><div><div class="eyebrow"><span class="n">00</span> TEACH · 示教与回放</div><h2>实时观察、示教与回放采集</h2><p class="lead">双路画面与状态同步显示。所有运动由现场人员手动点击；结束示教只保存路径。</p></div><span class="status-pill warn">真机动作待现场验证</span></header>
+    <p class="motion-static-note">夹爪固定张开，数据末维保持 0；不重复确认，未测量开度。</p>
+    <div class="motion-dash">
+      <div class="motion-dash-screen" aria-label="实时画面与模型">
+        <figure class="motion-camera" data-live-camera="cam_bottom"><figcaption><div><b>俯视相机</b><small>cam_bottom</small></div><span class="status-pill" data-live-state>待连接</span></figcaption><div class="motion-camera-view"><img alt="俯视相机实时画面" hidden><div class="motion-camera-empty"><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div><div class="motion-camera-meta"><span>源帧率 <b data-live-hz>—</b> Hz</span><span>帧龄 <b data-live-age>—</b> ms</span></div></figure>
+        <figure class="motion-camera" data-live-camera="cam_wrist"><figcaption><div><b>腕部相机</b><small>cam_wrist</small></div><span class="status-pill" data-live-state>待连接</span></figcaption><div class="motion-camera-view"><img alt="腕部相机实时画面" hidden><div class="motion-camera-empty"><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div><div class="motion-camera-meta"><span>源帧率 <b data-live-hz>—</b> Hz</span><span>帧龄 <b data-live-age>—</b> ms</span></div></figure>
+        <div class="card capture-robot motion-urdf">
+          <div class="capture-robot-head"><div><h3>实时三维机械臂</h3><p>真实 URDF · 点按钮时保持可见</p></div><span class="status-pill" id="capture-robot-status">等待机器人连接</span></div>
+          <div class="capture-robot-viewport"><canvas id="capture-robot-canvas" tabindex="0" aria-label="机械臂三维模型。拖动旋转，滚轮缩放。"></canvas><div class="capture-robot-overlay" id="capture-robot-overlay">连接后读取真实 URDF 模型</div><div class="capture-robot-axis">Z 向上 · base_link_arm</div></div>
+          <div class="capture-robot-tools"><span id="capture-robot-pose">尚无有效关节姿态</span><div><button type="button" class="btn" id="capture-robot-reset">复位视角</button><button type="button" class="btn" id="capture-robot-retry" hidden>重新加载模型</button></div></div>
+          <details class="capture-robot-source"><summary>模型来源</summary><p id="capture-robot-source">等待模型加载</p><p id="capture-robot-hash"></p></details>
+        </div>
+        <div class="card motion-live-state"><div class="motion-card-head"><h3>关节</h3><span class="status-pill" id="motion-record-mode">待连接</span></div><div class="motion-live-joints"><div><span>J1</span><b data-live-joint="0">—</b><small>°</small></div><div><span>J2</span><b data-live-joint="1">—</b><small>°</small></div><div><span>J3</span><b data-live-joint="2">—</b><small>°</small></div><div><span>J4</span><b data-live-joint="3">—</b><small>°</small></div><div><span>J5</span><b data-live-joint="4">—</b><small>°</small></div><div><span>J6</span><b data-live-joint="5">—</b><small>°</small></div></div><div class="motion-live-record"><span>录制 <b id="motion-record-elapsed">—</b> 秒</span><span><b id="motion-record-frames">—</b> 帧</span></div></div>
+      </div>
+      <div class="motion-dash-side">
+    <details class="card motion-parameters" id="motion-parameters"><summary><b>操作参数</b><span id="motion-parameter-summary">展开查看拖动、复位与回放设置</span></summary><p class="motion-parameter-note" id="motion-contact-note">拖动接触模式待读取。复位 / 回放仍使用受力与力矩阈值，默认 20 N / 3 N·m。</p><p class="motion-parameter-scope" id="motion-playback-scope">MoveJ 返回与自动复位使用复位速度百分比。回放方式待读取；跟踪误差与受力 / 力矩保护仍生效。</p><div class="motion-parameter-grid"><label><span>拖动受力 <small>N</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-teach_force_n" data-parameter="teach_force_n" value="40" min="5" max="60" step="0.1" disabled><small data-parameter-bound="teach_force_n">5–60 N</small></label><label><span>复位 / 回放受力 <small>N</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-force_n" data-parameter="force_n" value="20" min="5" max="20" step="0.1" disabled><small data-parameter-bound="force_n">5–20 N</small></label><label><span>复位 / 回放力矩 <small>N·m</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-torque_nm" data-parameter="torque_nm" value="3" min="0.5" max="3" step="0.1" disabled><small data-parameter-bound="torque_nm">0.5–3 N·m</small></label><label><span>自动复位速度 <small>%</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-reset_speed_percent" data-parameter="reset_speed_percent" value="100" min="1" max="100" step="1" disabled><small data-parameter-bound="reset_speed_percent">1–100 %</small></label><label><span>回放倍率 <small>×</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-replay_speed" data-parameter="replay_speed" value="1" min="0.1" max="1" step="0.01" disabled><small data-parameter-bound="replay_speed">0.1–1 ×</small></label><label><span>回放速度上限 <small>°/s</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-max_velocity_deg_s" data-parameter="max_velocity_deg_s" value="10" min="1" max="10" step="0.1" disabled><small data-parameter-bound="max_velocity_deg_s">1–10 °/s</small></label><label><span>回放加速度 <small>°/s²</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-max_acceleration_deg_s2" data-parameter="max_acceleration_deg_s2" value="30" min="5" max="30" step="0.1" disabled><small data-parameter-bound="max_acceleration_deg_s2">5–30 °/s²</small></label><label><span>回放跟踪误差 <small>°</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-tracking_deg" data-parameter="tracking_deg" value="10" min="0.5" max="10" step="0.1" disabled><small data-parameter-bound="tracking_deg">0.5–10 °</small></label><label><span>轨迹端点容差 <small>°</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-endpoint_tolerance_deg" data-parameter="endpoint_tolerance_deg" value="2" min="0.1" max="2" step="0.1" disabled><small data-parameter-bound="endpoint_tolerance_deg">0.1–2 °</small></label><label><span>回放单步角度 <small>°</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-max_step_deg" data-parameter="max_step_deg" value="1" min="0.1" max="1" step="0.1" disabled><small data-parameter-bound="max_step_deg">0.1–1 °</small></label></div><p id="motion-parameter-error" class="motion-parameter-error" role="alert" hidden></p><div class="motion-parameter-footer"><span id="motion-parameter-validation">等待机器人连接后读取已保存设置。</span><button class="btn" id="motion-save-parameters" type="button" disabled>保存操作参数</button></div></details>
+    <div class="motion-grid">
+      <aside class="card motion-session">
+        <div class="motion-card-head"><h3>手动控制会话</h3><span class="status-pill" id="motion-mode">待连接</span></div>
+        <p id="motion-reason" class="motion-reason" role="status">等待机器人连接</p>
+        <button class="btn primary" id="motion-arm" type="button" disabled>开启手动会话</button>
+        <div class="motion-owner"><span>控制权 <b id="motion-owner">—</b></span><span>续期余量 <b id="motion-lease">—</b> 秒</span></div>
+        <p class="motion-lease-note">页面可见时自动续期。切到后台或关闭页面后，5 秒未续期将触发停止；切换本工作台标签页可继续查看画面。</p>
+        <button class="btn" id="motion-disarm" type="button" disabled>关闭手动会话</button><div class="motion-recovery" id="motion-recovery" hidden><button class="btn" id="motion-recover" type="button" disabled>检查并恢复</button><p id="motion-recovery-reason" role="status"></p><p id="motion-stop-confirmed"></p><p>停止未确认时先点「停止机械臂」。控制器报警或受力仍异常时会拒绝恢复。</p><p>只恢复手动会话，不自动开启拖动、回放或复位。</p></div>
+        <div class="motion-stop-block"><button class="btn danger" id="motion-stop" type="button" disabled><span aria-hidden="true">■</span> 停止机械臂</button><p>这不是硬件急停。<strong>停止未确认时，请使用现场急停。</strong></p></div>
+      </aside>
+      <div class="motion-workflow">
+        <ol class="motion-stages">
+          <li class="card" data-motion-step="reset"><div class="motion-step-number">↶</div><div class="motion-step-content"><div class="motion-replay-heading"><h3>自定义复位零位</h3><span class="motion-speed" id="motion-reset-speed">速度待读取</span></div><p id="motion-default-pose">开启会话后读取已保存的复位目标与关节限位。</p><div class="motion-reset-inputs"><label><span>J1 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j1" data-reset-joint="0" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="0">范围待读取</small></label><label><span>J2 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j2" data-reset-joint="1" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="1">范围待读取</small></label><label><span>J3 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j3" data-reset-joint="2" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="2">范围待读取</small></label><label><span>J4 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j4" data-reset-joint="3" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="3">范围待读取</small></label><label><span>J5 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j5" data-reset-joint="4" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="4">范围待读取</small></label><label><span>J6 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j6" data-reset-joint="5" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="5">范围待读取</small></label></div><p id="motion-reset-validation" class="motion-reset-validation" role="status">填入六个有限角度；保存前由后端最终检查关节范围。</p><div class="motion-buttons"><button type="button" class="btn" id="motion-set-current" disabled>当前位置设为零位</button><button type="button" class="btn" id="motion-save-pose" disabled>保存输入零位</button></div><p class="motion-reset-note">以上两项只保存配置，不移动机械臂；这里的复位零位与编码器零点、示教轨迹起点独立。</p><button type="button" class="btn primary" id="motion-reset" disabled>自动复位</button><span class="motion-small-note">点击自动复位才按设定速度移动到当前已保存目标。</span></div></li>
+          <li class="card" data-motion-step="teach"><div class="motion-step-number">1</div><div class="motion-step-content"><h3>拖动示教</h3><p>开启电流环拖动后手动引导机械臂并记录关节。结束示教只退出拖动并保存路径，不会自动回到起点。</p><label class="motion-pre-roll-label" for="motion-teach-pre-roll"><span>移动前保留（秒）</span><input class="field" id="motion-teach-pre-roll" type="number" min="0" max="10" step="0.1" value="1" inputmode="decimal" aria-describedby="motion-pre-roll-help motion-teaching-state" disabled><small>0–10 秒</small></label><p id="motion-pre-roll-help" class="motion-pre-roll-help">等待时只保留最近这段记录；关节相对起始姿态变化 ≥0.3° 后持续记录。</p><p id="motion-teaching-state" class="motion-teaching-state" role="status" hidden></p><div class="motion-buttons"><button type="button" class="btn primary" id="motion-drag-start" disabled>开启拖动示教</button><button type="button" class="btn" id="motion-drag-stop" disabled>结束示教 · 保存路径</button></div><span class="motion-small-note">结束示教只保存路径。动作前、动作后各保留 1 秒静止；回到起点请单独点 MoveJ。</span></div></li>
+          <li class="card" data-motion-step="home"><div class="motion-step-number">2</div><div class="motion-step-content"><h3>MoveJ 返回示教起点</h3><p>单独点击后，用一次 rm_movej、默认 80% 速度回到本次拖动起点。结束示教不会自动执行。</p><p class="motion-path-blocked" id="motion-home-reason" role="status" hidden></p><button type="button" class="btn" id="motion-home" disabled>MoveJ 返回示教起点</button></div></li>
+          <li class="card" data-motion-step="replay"><div class="motion-step-number">3</div><div class="motion-step-content"><div class="motion-replay-heading"><h3>回放并采集</h3><span class="motion-speed" id="motion-replay-speed">倍率待读取</span></div><p>按示教时间回放：先均匀重采样到 10 ms 并平滑，再用高跟随 rm_movej_canfd 发送。调度变慢时继续下一点，不把整段拉长，也不因跟踪误差或受力中途停止。</p><p class="motion-path-blocked" id="motion-replay-reason" role="status" hidden></p><div class="motion-buttons"><button type="button" class="btn primary" id="motion-replay" disabled>回放并采集</button><button type="button" class="btn" id="motion-library">打开数据回看 →</button></div></div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="motion-alert" id="motion-error" role="alert" hidden></div>
+    <div class="card motion-path">
+      <div class="motion-card-head"><div><h3 id="motion-path-title">当前示教路径</h3><p id="motion-path-id">尚无已保存路径</p></div><div class="motion-path-metrics"><span>原始 <b id="motion-path-frames">—</b> 帧</span><span>原始时长 <b id="motion-path-duration">—</b> 秒</span></div></div>
+      <div class="motion-path-plan"><p id="motion-path-planned">尚无回放计划</p><span id="motion-path-restored" class="status-pill" hidden>已从文件恢复</span></div>
+      <div class="motion-path-points"><div><span>起点 <small>六关节绝对角度 / °</small></span><b id="motion-path-start">等待完成示教</b></div><span class="motion-path-arrow" aria-hidden="true">⇄</span><div><span>终点 <small>六关节绝对角度 / °</small></span><b id="motion-path-end">等待完成示教</b></div></div>
+      <div class="motion-path-footer"><p id="motion-progress" role="status">结束示教不会自动回到起点。</p><button type="button" class="btn" id="motion-capture">采集页</button></div>
+    </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+#motion .motion-path-plan{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px;padding:10px 13px;border-radius:8px;background:var(--bg-2)}
+#motion .motion-path-plan p{font-size:12px;color:var(--ink-2);margin:0}
+#motion .motion-path-plan>.status-pill{flex-shrink:0}
+#motion .motion-step-content .motion-path-blocked{font-size:12px;color:#991b1b;background:var(--bad-bg);padding:9px 11px;border-radius:8px;overflow-wrap:anywhere;margin:8px 0 12px}
+@media(max-width:720px){#motion .motion-path-plan{align-items:flex-start;flex-direction:column}}
+
+#motion .motion-parameters{margin:0 0 20px;padding:17px 20px}
+#motion .motion-parameters>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none;font-size:14px}
+#motion .motion-parameters>summary b:before{content:"▸";margin-right:9px;color:var(--brand)}
+#motion .motion-parameters[open]>summary b:before{content:"▾"}
+#motion .motion-parameters>summary span{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+#motion .motion-parameters>summary span.invalid{color:var(--bad)}
+#motion .motion-parameter-scope{font-size:11px;color:var(--muted);margin:0 0 14px}
+#motion .motion-parameter-note{font-size:12px;color:#92400e;background:var(--warn-bg);padding:11px 13px;border-radius:8px;margin:14px 0}
+#motion .motion-parameter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px 16px}
+#motion .motion-parameter-grid label{min-width:0}
+#motion .motion-parameter-grid label>span{display:block;font-size:12px;font-weight:600;margin-bottom:5px}
+#motion .motion-parameter-grid label small{font-size:10px;color:var(--muted);font-weight:400}
+#motion .motion-parameter-grid input{width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+#motion .motion-parameter-grid input:disabled{color:var(--muted);background:var(--bg-2)}
+#motion .motion-parameter-grid input[aria-invalid="true"]{border-color:#f87171;background:var(--bad-bg)}
+#motion .motion-parameter-grid label>small{display:block;margin-top:4px}
+#motion .motion-parameter-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px}
+#motion .motion-parameter-footer>span{font-size:11px;color:var(--muted)}
+#motion .motion-parameter-footer .btn{font-size:12px;flex-shrink:0}
+#motion .motion-parameter-error{font-size:12px;color:#991b1b;background:var(--bad-bg);border-radius:8px;padding:10px 12px;overflow-wrap:anywhere;margin:12px 0 0}
+@media(max-width:1100px){#motion .motion-parameter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:680px){#motion .motion-parameter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#motion .motion-parameter-footer{align-items:flex-start;flex-direction:column}#motion .motion-parameters>summary{align-items:flex-start;flex-direction:column}}
+
+#motion .motion-recovery{margin-top:14px;padding:13px 12px;background:var(--warn-bg);border:1px solid #fde68a;border-radius:10px}
+#motion .motion-recovery .btn{width:100%;font-size:13px;min-height:38px;color:#92400e;border-color:#fcd34d;background:#fff}
+#motion .motion-recovery p{font-size:11px;line-height:1.75;color:#92400e;margin:7px 0 0;overflow-wrap:anywhere}
+
+#motion .motion-pre-roll-label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;margin:8px 0}
+#motion .motion-pre-roll-label>span{font-weight:600}
+#motion #motion-teach-pre-roll{width:100px;padding:7px 10px;font-size:12px;font-variant-numeric:tabular-nums}
+#motion #motion-teach-pre-roll:disabled{background:var(--bg-2);color:var(--muted)}
+#motion #motion-teach-pre-roll[aria-invalid="true"]{border-color:#f87171;background:var(--bad-bg)}
+#motion .motion-pre-roll-label small{font-size:10px;color:var(--muted)}
+#motion .motion-step-content .motion-pre-roll-help{font-size:11px;margin:6px 0 12px}
+#motion .motion-step-content .motion-teaching-state{font-size:11px;color:var(--ink-2);background:var(--bg-2);padding:8px 10px;border-radius:8px;margin:8px 0 12px}
+
+#motion .motion-reset-inputs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:12px 0 8px}
+#motion .motion-reset-inputs label{min-width:0}
+#motion .motion-reset-inputs label>span{font-size:12px;font-weight:650;display:block;margin-bottom:5px}
+#motion .motion-reset-inputs label>span small{font-size:9px;font-weight:400;color:var(--muted)}
+#motion .motion-reset-inputs input{width:100%;min-width:0;font:12px var(--mono);padding:8px 7px;font-variant-numeric:tabular-nums}
+#motion .motion-reset-inputs input:disabled{background:var(--bg-2);color:var(--muted)}
+#motion .motion-reset-inputs input[aria-invalid="true"]{border-color:#f87171;background:var(--bad-bg)}
+#motion .motion-reset-inputs label>small{display:block;font-size:9px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#motion .motion-step-content .motion-reset-validation{font-size:11px;line-height:1.6;margin:5px 0 11px;color:var(--muted)}
+#motion .motion-step-content .motion-reset-validation.invalid{color:var(--bad)}
+#motion .motion-step-content .motion-reset-note{font-size:11px;margin:10px 0 12px;color:var(--muted)}
+@media(max-width:1100px){#motion .motion-reset-inputs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+#motion .motion-static-note{font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 14px;margin-bottom:16px}
+#motion .motion-dash{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:14px;align-items:start}
+#motion .motion-dash-side{order:1;min-width:0}
+#motion .motion-dash-side .motion-grid{grid-template-columns:1fr}
+#motion .motion-dash-screen{order:2;position:sticky;top:8px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-self:start}
+#motion .motion-dash-screen .motion-urdf,#motion .motion-dash-screen .motion-live-state{grid-column:1/-1}
+#motion .motion-urdf{margin:0;padding:12px}
+#motion .motion-urdf .capture-robot-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+#motion .motion-urdf .capture-robot-head h3{margin:0;font-size:15px}
+#motion .motion-urdf .capture-robot-head p{margin:2px 0 0;color:var(--muted);font-size:11px}
+#motion .motion-urdf .capture-robot-viewport{position:relative;height:min(34vh,320px);border-radius:10px;overflow:hidden;background:#eef2f7;border:1px solid var(--line)}
+#motion .motion-urdf canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#motion .motion-urdf .capture-robot-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);text-align:center;background:#eef2f7dd;pointer-events:none}
+#motion .motion-urdf .capture-robot-overlay[hidden]{display:none}
+#motion .motion-urdf .capture-robot-axis{position:absolute;left:10px;bottom:8px;font:10px var(--mono);color:var(--muted);pointer-events:none}
+#motion .motion-urdf .capture-robot-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px}
+#motion .motion-urdf .capture-robot-tools .btn{font-size:12px;padding:6px 10px;min-height:32px}
+#motion .motion-urdf .capture-robot-source{font-size:11px;color:var(--muted);margin-top:8px}
+#motion .motion-urdf .capture-robot-source p{overflow-wrap:anywhere;font-family:var(--mono);margin:6px 0 0}
+#motion .motion-live{margin-bottom:20px}
+#motion .motion-live-cameras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#motion .motion-camera{margin:0;background:white;border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:var(--shadow)}
+#motion .motion-camera figcaption{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;gap:10px}
+#motion .motion-camera figcaption b{font-size:14px;display:block}
+#motion .motion-camera figcaption small{font:10px var(--mono);display:block;color:var(--muted);margin-top:2px}
+#motion .motion-camera-view{aspect-ratio:16/9;background:#111b2d;position:relative;overflow:hidden}
+#motion .motion-camera-view img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#motion .motion-camera-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 35%,#21334d,#111b2d 75%);color:#b8c4d8}
+#motion .motion-camera-empty b{font-size:15px;font-weight:600}
+#motion .motion-camera-empty span{font-size:11px;color:#8599b7;margin-top:6px}
+#motion .motion-camera-meta{padding:9px 16px;display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+#motion .motion-camera-meta b{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+#motion .motion-live-state{margin-top:14px;padding:16px 20px}
+#motion .motion-live-joints{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+#motion .motion-live-joints>div{padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px}
+#motion .motion-live-joints span{font:10px var(--mono);color:var(--muted);display:block;margin-bottom:3px}
+#motion .motion-live-joints b{font-size:20px;font-variant-numeric:tabular-nums;font-weight:650}
+#motion .motion-live-joints small{margin-left:3px;color:var(--muted)}
+#motion .motion-live-record{display:flex;gap:24px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:12px}
+#motion .motion-live-record b{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;margin:0 3px}
+#motion #motion-default-pose{overflow-wrap:anywhere}
+@media(max-width:980px){#motion .motion-dash{grid-template-columns:1fr}#motion .motion-dash-screen{position:static;order:-1}}
+@media(max-width:720px){#motion .motion-dash-screen{grid-template-columns:1fr}#motion .motion-live-cameras{grid-template-columns:1fr}#motion .motion-live-joints{grid-template-columns:repeat(3,minmax(0,1fr))}#motion .motion-live-record{gap:10px}}
+
+#motion [hidden]{display:none!important}
+#motion .motion-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+#motion .motion-heading>.status-pill{flex-shrink:0;margin-top:4px}
+#motion .motion-grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}
+#motion .motion-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+#motion h3{font-size:16px;margin:0;line-height:1.4}
+#motion .motion-session{padding:21px}
+#motion .motion-reason{font-size:12px;color:var(--muted);background:var(--bg-2);border-radius:9px;padding:11px 12px;overflow-wrap:anywhere;margin-bottom:16px}
+#motion .motion-confirm{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.8;color:var(--ink-2);margin:0 0 14px;cursor:pointer}
+#motion .motion-confirm input{flex-shrink:0;width:17px;height:17px;margin:3px 0 0;accent-color:var(--brand)}
+#motion .motion-session>.btn{width:100%;font-size:13px}
+#motion .motion-owner{display:flex;justify-content:space-between;gap:7px;font-size:11px;margin:15px 0 9px;color:var(--muted);font-variant-numeric:tabular-nums}
+#motion .motion-owner b{font-weight:650;color:var(--ink-2);margin-left:3px}
+#motion .motion-lease-note{font-size:11px;color:var(--muted);line-height:1.8;margin:0 0 14px}
+#motion .motion-stop-block{border-top:1px solid var(--line);margin-top:17px;padding-top:17px}
+#motion .motion-stop-block>.btn{width:100%;font-size:14px;border-color:#fca5a5;min-height:46px}
+#motion .motion-stop-block p{font-size:11px;color:var(--muted);line-height:1.8;margin:8px 0 0}
+#motion .motion-stop-block strong{color:var(--bad);font-weight:600;display:block}
+#motion .motion-stages{display:grid;gap:12px;padding:0;margin:0;list-style:none}
+#motion .motion-stages li{display:flex;gap:15px;padding:19px 21px;border-left:3px solid var(--line-2)}
+#motion .motion-stages li.active{border-left-color:var(--brand);background:#fdfdff}
+#motion .motion-step-number{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--bg-2);color:var(--brand);font-weight:750;font-size:13px;flex-shrink:0}
+#motion .motion-step-content{flex:1;min-width:0}
+#motion .motion-step-content p{font-size:12px;color:var(--muted);margin:6px 0 12px;line-height:1.8;max-width:640px}
+#motion .motion-buttons{display:flex;gap:9px;flex-wrap:wrap}
+#motion .motion-step-content .btn{font-size:12px;min-height:37px;padding:8px 13px}
+#motion .motion-small-note{font-size:10px;color:var(--muted);display:block;margin-top:9px}
+#motion .motion-replay-heading{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#motion .motion-speed{font-size:11px;padding:2px 8px;background:#eef2ff;color:var(--brand);border-radius:6px;white-space:nowrap}
+#motion .motion-alert{margin-top:16px;padding:14px 17px;background:var(--bad-bg);color:#991b1b;border:1px solid #fecaca;border-radius:12px;font-size:13px;overflow-wrap:anywhere}
+#motion .motion-alert[hidden]{display:none}
+#motion .motion-path{margin-top:18px;padding:20px 23px}
+#motion .motion-path .motion-card-head p{font:11px var(--mono);color:var(--muted);margin:5px 0 0;overflow-wrap:anywhere}
+#motion .motion-path-metrics{display:flex;gap:23px;flex-shrink:0;font-size:11px;color:var(--muted)}
+#motion .motion-path-metrics b{font-variant-numeric:tabular-nums;font-size:20px;font-weight:650;color:var(--ink);margin-right:3px}
+#motion .motion-path-points{display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);gap:12px;align-items:center}
+#motion .motion-path-points>div{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:12px 14px}
+#motion .motion-path-points>div>span{display:block;font-size:12px;color:var(--ink-2);font-weight:600;margin-bottom:6px}
+#motion .motion-path-points small{color:var(--muted);font-size:10px;font-weight:400;margin-left:8px}
+#motion .motion-path-points b{font:13px/1.7 var(--mono);color:var(--muted);overflow-wrap:anywhere}
+#motion .motion-path-arrow{text-align:center;color:var(--brand);font-size:24px}
+#motion .motion-path-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px}
+#motion .motion-path-footer p{font-size:11px;margin:0;color:var(--muted);overflow-wrap:anywhere}
+#motion .motion-path-footer .btn{font-size:12px;min-height:36px;padding:7px 12px;flex-shrink:0}
+@media(max-width:1050px){#motion .motion-grid{grid-template-columns:280px minmax(0,1fr);gap:14px}#motion .motion-stages li{padding:17px;gap:12px}#motion .motion-session{padding:17px}#motion .motion-heading{display:block}#motion .motion-heading>.status-pill{margin-top:12px}#motion .motion-path{padding:18px}}
+@media(max-width:720px){#motion .motion-grid{grid-template-columns:1fr}#motion .motion-path-points{grid-template-columns:1fr}#motion .motion-path-arrow{display:none}#motion .motion-path-footer{align-items:flex-start;flex-direction:column}#motion .motion-path .motion-card-head{align-items:flex-start;flex-direction:column}#motion .motion-heading h2{font-size:24px}}
+</style>
+<script>
+(()=>{
+  const root=document.getElementById('motion'),find=id=>root.querySelector('#motion-'+id),alert=find('error');
+  const actions={arm:find('arm'),reset:find('reset'),drag_start:find('drag-start'),drag_stop:find('drag-stop'),home:find('home'),replay:find('replay'),disarm:find('disarm'),recover:find('recover'),stop:find('stop')};
+  let clientId=null,localError='',pending=false,stopPending=false,heartbeatPending=false,current=R5.state,resetFormInitialized=false,preRollInitialized=false,recoverRequest=false,parametersInitialized=false,parametersDirty=false,parameterMessage='',heartbeatError='',heartbeatErrorSession=null;
+  try{clientId=sessionStorage.getItem('r5-motion-client-id');if(!clientId){clientId=crypto.randomUUID();sessionStorage.setItem('r5-motion-client-id',clientId);}}catch(e){localError='无法创建本页控制会话，请使用支持安全上下文和会话存储的浏览器。';}
+  const resetInputs=[...root.querySelectorAll('[data-reset-joint]')];
+  const validPose=q=>Array.isArray(q)&&q.length===6&&q.every(Number.isFinite);
+  function fillResetInputs(q){if(!validPose(q))return;resetInputs.forEach((input,i)=>input.value=String(q[i]));resetFormInitialized=true;}
+  function resetLimits(m,i){const row=m?.joint_limits_deg?.[i];if(Array.isArray(row)&&row.length===2&&row.every(Number.isFinite))return row;if(row&&Number.isFinite(row.lower)&&Number.isFinite(row.upper))return [row.lower,row.upper];return null;}
+  function validateReset(m){let error='';const joints=resetInputs.map((input,i)=>{const limit=resetLimits(m,i),value=input.value.trim()===''?NaN:Number(input.value);let invalid=!Number.isFinite(value);if(limit){input.min=String(limit[0]);input.max=String(limit[1]);root.querySelector('[data-reset-limit="'+i+'"]').textContent=R5.fmt(limit[0],3)+' … '+R5.fmt(limit[1],3)+'°';if(!invalid&&(value<limit[0]||value>limit[1])){invalid=true;if(!error)error='J'+(i+1)+' 超出允许范围 '+R5.fmt(limit[0],3)+' … '+R5.fmt(limit[1],3)+'°。';}}else{input.removeAttribute('min');input.removeAttribute('max');root.querySelector('[data-reset-limit="'+i+'"]').textContent='范围由后端检查';}if(invalid&&!error)error='请完整填写六个有限角度，空值不能保存。';input.setAttribute('aria-invalid',invalid&&input.value.trim()!==''?'true':'false');return value;});find('reset-validation').textContent=error||'输入已通过本地检查；保存前由后端最终校验关节范围。';find('reset-validation').className='motion-reset-validation'+(error?' invalid':'');return {valid:!error,joints};}
+  const preRollInput=find('teach-pre-roll');
+  const validPreRoll=v=>Number.isFinite(v)&&v>=0&&v<=10;
+  const preRollValue=()=>preRollInput.value.trim()===''?NaN:Number(preRollInput.value);
+  function savedPreRoll(status){return status?.motion?.teach_pre_roll_s??status?.teach_pre_roll_s;}
+  function syncPreRoll(status){const value=savedPreRoll(status);if(validPreRoll(value)){preRollInput.value=String(value);preRollInitialized=true;}}
+  const parameterSpec=[{"key": "teach_force_n", "label": "拖动受力", "unit": "N", "default": 40, "lower": 5, "upper": 60, "integer": false}, {"key": "force_n", "label": "复位 / 回放受力", "unit": "N", "default": 20, "lower": 5, "upper": 20, "integer": false}, {"key": "torque_nm", "label": "复位 / 回放力矩", "unit": "N·m", "default": 3, "lower": 0.5, "upper": 3, "integer": false}, {"key": "reset_speed_percent", "label": "自动复位速度", "unit": "%", "default": 100, "lower": 1, "upper": 100, "integer": true}, {"key": "replay_speed", "label": "回放倍率", "unit": "×", "default": 1, "lower": 0.1, "upper": 1, "integer": false}, {"key": "max_velocity_deg_s", "label": "回放速度上限", "unit": "°/s", "default": 10, "lower": 1, "upper": 10, "integer": false}, {"key": "max_acceleration_deg_s2", "label": "回放加速度", "unit": "°/s²", "default": 30, "lower": 5, "upper": 30, "integer": false}, {"key": "tracking_deg", "label": "回放跟踪误差", "unit": "°", "default": 10, "lower": 0.5, "upper": 10, "integer": false}, {"key": "endpoint_tolerance_deg", "label": "轨迹端点容差", "unit": "°", "default": 2, "lower": 0.1, "upper": 2, "integer": false}, {"key": "max_step_deg", "label": "回放单步角度", "unit": "°", "default": 1, "lower": 0.1, "upper": 1, "integer": false}];
+  const parameterInputs=new Map(parameterSpec.map(spec=>[spec.key,find('param-'+spec.key)]));
+  function fillParameters(m){parameterSpec.forEach(spec=>{const value=m?.parameters?.[spec.key];parameterInputs.get(spec.key).value=String(Number.isFinite(value)?value:spec.default);});parametersInitialized=true;parametersDirty=false;}
+  function parameterUnused(key,m){return key==='teach_force_n'&&m?.teach_contact_mode==='native_drag'||m?.playback_mode==='recorded_timing'&&['max_velocity_deg_s','max_acceleration_deg_s2','max_step_deg'].includes(key);}
+  function validateParameters(m){const values={};let issue='';parameterSpec.forEach(spec=>{const input=parameterInputs.get(spec.key),server=m?.parameter_bounds?.[spec.key],bounds=Array.isArray(server)&&server.length===2&&server.every(Number.isFinite)&&server[0]<=server[1]?[Math.max(spec.lower,server[0]),Math.min(spec.upper,server[1])]:[spec.lower,spec.upper],unusedParameter=parameterUnused(spec.key,m),stored=m?.parameters?.[spec.key],value=unusedParameter?(Number.isFinite(stored)&&stored>=bounds[0]&&stored<=bounds[1]?stored:spec.default):input.value.trim()===''?NaN:Number(input.value),invalid=!unusedParameter&&(!Number.isFinite(value)||value<bounds[0]||value>bounds[1]||(spec.integer&&!Number.isInteger(value)));values[spec.key]=value;input.min=String(bounds[0]);input.max=String(bounds[1]);input.setAttribute('aria-invalid',invalid?'true':'false');root.querySelector('[data-parameter-bound="'+spec.key+'"]').textContent=R5.fmt(bounds[0],2)+'–'+R5.fmt(bounds[1],2)+' '+spec.unit+(spec.integer?' · 整数':'');if(invalid&&!issue)issue=spec.label+'须为 '+R5.fmt(bounds[0],2)+'–'+R5.fmt(bounds[1],2)+' '+spec.unit+' 的'+(spec.integer?'整数':'有限数值')+'。';});return {values,issue};}
+  const heartbeatModes=new Set(['ARMED','TEACHING','HOMING','RESETTING','REPLAYING']);
+  const sessionSnapshot=m=>({owner:m?.owner,mode:m?.mode,generation:m?.session_generation});
+  const sameSession=(m,snapshot)=>!!m&&!!snapshot&&m.owner===snapshot.owner&&m.mode===snapshot.mode&&m.session_generation===snapshot.generation;
+  function clearHeartbeatError(){heartbeatError='';heartbeatErrorSession=null;}
+  const modeNames={DISARMED:'未开启',ARMED:'会话已开启',TEACHING:'拖动示教中',HOMING:'MoveJ 返回起点中',RESETTING:'复位中',REPLAYING:'回放采集中',STOPPING:'正在停止',FAULT:'故障锁定'};
+  const cameras=[...root.querySelectorAll('[data-live-camera]')].map(card=>({card,key:card.dataset.liveCamera,img:card.querySelector('img'),placeholder:card.querySelector('.motion-camera-empty'),loading:false}));
+  const fresh=data=>!!data?.available&&Number.isFinite(data.age_s)&&data.age_s<=.15;
+  function clearFrame(cam,message,detail){cam.img.hidden=true;cam.placeholder.hidden=false;cam.placeholder.querySelector('b').textContent=message;cam.placeholder.querySelector('span').textContent=detail;}
+  cameras.forEach(cam=>{cam.img.onload=()=>{cam.loading=false;if(current.connected&&fresh(current.status?.observation?.cameras?.[cam.key])){cam.img.hidden=false;cam.placeholder.hidden=true;}};cam.img.onerror=()=>{cam.loading=false;clearFrame(cam,'画面暂不可用','等待下一次画面刷新');};});
+  function update(state){
+    current=state;const observedMotion=state.status?.motion;if(heartbeatErrorSession&&(!heartbeatModes.has(observedMotion?.mode)||!sameSession(observedMotion,heartbeatErrorSession)))clearHeartbeatError();const online=state.connected,s=online?state.status:null,m=s?.motion,mode=m?.mode||'DISARMED',owned=!!clientId&&m?.owner===clientId,canUse=online&&!!m&&!!clientId,fault=mode==='FAULT',armed=mode==='ARMED',isBusy=['TEACHING','HOMING','RESETTING','REPLAYING','STOPPING'].includes(mode),path=m?.trajectory;
+    const recording=s?.mode==='RECORDING',exporting=state.exports.some(x=>x.status==='RUNNING'),otherBusy=recording||exporting;
+    if(!parametersInitialized&&online&&m)fillParameters(m);
+    const canSetParameters=canUse&&!pending&&!stopPending&&!otherBusy&&!m?.recovering&&(mode==='DISARMED'||(armed&&owned));parameterInputs.forEach((input,key)=>{const unused=parameterUnused(key,m);input.disabled=!canSetParameters||unused;input.closest('label').hidden=unused;});const nativeDrag=m?.teach_contact_mode==='native_drag';find('playback-scope').textContent='回到拖动起点需单独点击，一次 MoveJ、默认速度 80%。回放按示教时间做 10 ms 高跟随透传。';find('contact-note').textContent=nativeDrag?'拖动、MoveJ 返回和回放不再因面板的受力 / 力矩或跟踪误差停止。空闲会话仍使用受力与力矩阈值。控制器自身限位和急停保留。':'拖动接触模式由后端配置。空闲会话仍使用受力与力矩阈值。';const parameterValidation=validateParameters(m);find('save-parameters').disabled=!canSetParameters||!!parameterValidation.issue;
+    const parameterError=parameterMessage||m?.parameter_error||s?.parameter_error;find('parameter-error').textContent=parameterError||parameterValidation.issue;find('parameter-error').hidden=!find('parameter-error').textContent;find('parameter-summary').textContent=parameterError?'配置错误，展开修复：'+parameterError:parametersDirty?'有未保存的修改':'展开查看拖动、复位与回放设置';find('parameter-summary').className=parameterError?'invalid':'';find('parameter-validation').textContent=parameterValidation.issue||(!online?'等待机器人连接后读取已保存设置。':parametersDirty?'修改尚未保存；后端将在保存时最终校验。':'空闲时可保存；ARMED 会话须由本页持有。');
+    const resetPercent=m?.parameters?.reset_speed_percent??m?.reset_speed_percent,replayMultiplier=m?.parameters?.replay_speed??m?.replay_speed;find('reset-speed').textContent='速度 '+R5.fmt(resetPercent,0)+'%';actions.reset.textContent='自动复位 · '+R5.fmt(resetPercent,0)+'%';find('replay-speed').textContent=R5.fmt(replayMultiplier,2)+'×';
+    actions.arm.disabled=!canUse||pending||mode!=='DISARMED'||!m?.ready||otherBusy;
+    const newMotionBlocked=!canUse||pending||!owned||!armed||!m?.ready||otherBusy;
+    if(!resetFormInitialized&&validPose(m?.default_initial_pose))fillResetInputs(m.default_initial_pose);
+    resetInputs.forEach(input=>input.disabled=newMotionBlocked);const resetValidation=validateReset(m);find('set-current').disabled=newMotionBlocked;find('save-pose').disabled=newMotionBlocked||!resetValidation.valid;
+    if(!preRollInitialized&&online)syncPreRoll(s);
+    const preRollValid=validPreRoll(preRollValue());preRollInput.disabled=newMotionBlocked;preRollInput.setAttribute('aria-invalid',preRollValid?'false':'true');
+    find('pre-roll-help').textContent=preRollValid?'等待时只保留最近这段记录；关节相对起始姿态变化 ≥0.3° 后持续记录。':'请输入 0–10 秒之间的有限数值，空值不能启动示教。';
+    const movement=m?.teaching_movement_detected??s?.teaching_movement_detected,kept=m?.teaching_kept_frames??s?.teaching_kept_frames,activePreRoll=savedPreRoll(s);find('teaching-state').hidden=mode!=='TEACHING';find('teaching-state').textContent=(movement===true?'已检测移动，持续记录':movement===false?'等待移动，仅保留最近 '+R5.fmt(activePreRoll,1)+' 秒':'等待示教状态更新')+' · 当前保留 '+R5.fmt(kept,0)+' 帧';
+    actions.reset.disabled=newMotionBlocked||!m?.reset_ready;actions.drag_start.disabled=newMotionBlocked||!preRollValid;actions.home.disabled=newMotionBlocked||!path;actions.replay.disabled=newMotionBlocked||!path||path.replay_ready===false;
+    actions.drag_stop.disabled=!canUse||pending||!owned||mode!=='TEACHING';actions.disarm.disabled=!canUse||pending||!owned||!armed;
+    const recovering=!!m?.recovering||recoverRequest;actions.recover.disabled=!online||!clientId||!fault||!m?.recovery_available||pending||stopPending||otherBusy||recovering;find('recovery').hidden=!fault;actions.recover.textContent=recovering?'正在检查…':'检查并恢复';find('recovery-reason').textContent=m?.recovery_reason||'排除原因后检查并恢复。';find('stop-confirmed').textContent='软件停止状态：'+(m?.stop_confirmed===true?'已确认':m?.stop_confirmed===false?'未确认':'暂无确认信息');
+    actions.stop.disabled=!online||stopPending||!m||mode==='DISARMED';
+    find('mode').textContent=online?(m?modeNames[mode]||mode:'未接入'):'待连接';find('mode').className='status-pill'+(fault||mode==='STOPPING'?' warn':owned?' good':'');
+    find('owner').textContent=!online?'—':owned?'本页':m?.owner?'其他页面':'无';find('lease').textContent=R5.fmt(online?m?.lease_remaining_s:null,1);
+    find('reason').textContent=!online?'等待机器人连接':!m?'手动运动接口未接入':m.reason||(fault?'排除原因后检查并恢复':owned?'本页持有手动控制会话':m.owner?'控制会话由其他页面持有':'点击开启会话');
+    alert.textContent=m?.error||observedMotion?.error||localError||heartbeatError||(fault?'会话故障锁定，禁止新运动。排除原因后检查并恢复；停止未确认时使用现场急停。':'');alert.hidden=!alert.textContent;
+    const pose=m?.default_initial_pose;find('default-pose').textContent=Array.isArray(pose)&&pose.length===6&&pose.every(Number.isFinite)?'已保存目标（°）：'+pose.map(v=>R5.fmt(v,3)).join(' / ')+' · '+({user_current_pose:'来自当前实测关节',user_manual_pose:'来自手动输入'}[m.reset_target_source]||'配置目标')+(m.reset_reason?' · '+m.reset_reason:''):'开启会话后读取已保存的复位目标与关节限位。';
+    find('path-id').textContent=path?path.id:'尚无已保存路径';find('path-frames').textContent=R5.fmt(path?.frames,0);find('path-duration').textContent=R5.fmt(path?.duration_s,2);
+    find('path-title').textContent=path?.raw_saved===true?'原始路径已保存':'当前示教路径';find('path-restored').hidden=path?.restored!==true;const planned=path?.planned_duration_s;find('path-planned').textContent=!path?'尚无回放计划':Number.isFinite(planned)&&planned>=0?'计划回放约 '+R5.fmt(planned,2)+' 秒（原时间戳回放；端点对齐耗时另计）':path.replay_ready===false?'回放尚不能执行；原始路径保存状态见上方。':'回放计划时长待读取（独立规划与检查）';find('home-reason').hidden=true;find('home-reason').textContent='';find('replay-reason').hidden=path?.replay_ready!==false;find('replay-reason').textContent=path?.replay_reason||'回放计划未通过检查，当前不能执行回放。';
+    ['start','end'].forEach(key=>{const q=path?.[key];find('path-'+key).textContent=Array.isArray(q)&&q.length===6?q.map(v=>R5.fmt(v,1)).join(' / '):'等待完成示教';});
+    const progress=m?.progress;find('progress').textContent=typeof progress==='string'&&progress?progress:typeof progress==='number'&&Number.isFinite(progress)?'运动进度：'+R5.fmt(progress*100,0)+'%':isBusy?'正在执行，请在现场观察机械臂。':'结束示教不会自动回到起点。';
+    root.querySelectorAll('[data-motion-step]').forEach(el=>el.classList.toggle('active',({reset:'RESETTING',teach:'TEACHING',home:'HOMING',replay:'REPLAYING'}[el.dataset.motionStep])===mode));
+    const obs=s?.observation||{},rec=s?.recorder||{};find('record-mode').textContent=!online?'待连接':({IDLE:'待采集',RECORDING:'录制中',REVIEW:'待回看',ERROR:'采集需检查'}[s.mode]||s.mode||'—');find('record-frames').textContent=R5.fmt(online?rec.frames:null,0);find('record-elapsed').textContent=R5.fmt(online?rec.elapsed_s:null,1);
+    root.querySelectorAll('[data-live-joint]').forEach(el=>el.textContent=R5.fmt(online&&obs.ready?obs.state?.[Number(el.dataset.liveJoint)]:null,1));
+    cameras.forEach(cam=>{const data=online?obs.cameras?.[cam.key]:null,tag=cam.card.querySelector('[data-live-state]');tag.textContent=!online?'待连接':fresh(data)?'实时':Number.isFinite(data?.age_s)?'已过期':'无画面';tag.className='status-pill'+(online?(fresh(data)?' good':' warn'):'');cam.card.querySelector('[data-live-hz]').textContent=R5.fmt(data?.hz,1);cam.card.querySelector('[data-live-age]').textContent=R5.fmt(data?.age_s==null?null:data.age_s*1000,0);if(!online)clearFrame(cam,'等待机器人连接','连接后自动显示实时画面');else if(!fresh(data))clearFrame(cam,Number.isFinite(data?.age_s)?'画面已过期':'等待相机数据','请检查相机与 ROS 数据源');});
+  }
+  async function command(action){
+    if(actions[action].disabled)return;if(action==='stop')stopPending=true;else pending=true;if(action==='recover')recoverRequest=true;localError='';update(current);
+    const payload=action==='stop'?{}:{client_id:clientId};if(action==='drag_start')payload.pre_roll_s=preRollValue();
+    try{await R5.post('/api/motion/'+(action==='home'?'home_movej':action==='replay'?'replay_recorded':action),payload);if(action==='drag_start'){const actual=await R5.api('/api/status');syncPreRoll(actual);}await R5.refresh();R5.toast(action==='recover'?'会话已恢复，请手动重新开启拖动或复位':action==='stop'?'已提交停止请求，请核对状态与现场机械臂':'请求已提交，请核对当前状态');}
+    catch(e){localError=e.message;R5.toast(e.message,true);}finally{if(action==='stop')stopPending=false;else pending=false;if(action==='recover')recoverRequest=false;update(R5.state);}
+  }
+  async function saveResetPose(source){
+    const button=find(source==='current'?'set-current':'save-pose');if(button.disabled)return;
+    const validation=validateReset(current.status?.motion);if(source==='manual'&&!validation.valid)return;
+    const payload={client_id:clientId,source};if(source==='manual')payload.joints_deg=validation.joints;
+    pending=true;localError='';update(current);
+    try{await R5.post('/api/motion/set_reset_pose',payload);const saved=await R5.api('/api/status');fillResetInputs(saved.motion?.default_initial_pose);await R5.refresh();R5.toast('复位零位已保存；未发送机械臂运动命令');}
+    catch(e){localError=e.message;R5.toast(e.message,true);}finally{pending=false;update(R5.state);}
+  }
+  resetInputs.forEach(input=>input.addEventListener('input',()=>update(current)));
+  find('set-current').addEventListener('click',()=>saveResetPose('current'));find('save-pose').addEventListener('click',()=>saveResetPose('manual'));
+  preRollInput.addEventListener('input',()=>{preRollInitialized=true;update(current);});
+  async function saveParameters(){if(find('save-parameters').disabled)return;const validation=validateParameters(current.status?.motion);if(validation.issue)return;pending=true;parameterMessage='';localError='';update(current);try{await R5.post('/api/motion/set_parameters',{client_id:clientId,parameters:validation.values});const saved=await R5.api('/api/status');fillParameters(saved.motion);await R5.refresh();R5.toast('操作参数已保存；未启动机械臂动作');}catch(e){parameterMessage=e.message;R5.toast(e.message,true);}finally{pending=false;update(R5.state);}}
+  parameterInputs.forEach(input=>input.addEventListener('input',()=>{parametersInitialized=true;parametersDirty=true;parameterMessage='';update(current);}));find('save-parameters').addEventListener('click',saveParameters);
+  Object.entries(actions).forEach(([action,button])=>button.addEventListener('click',()=>command(action)));
+  find('capture').addEventListener('click',()=>R5.selectTab('capture'));find('library').addEventListener('click',()=>R5.selectTab('library'));
+  R5.on(update);
+  setInterval(()=>{if(!current.connected||root.hidden||document.hidden)return;cameras.forEach(cam=>{if(!fresh(current.status?.observation?.cameras?.[cam.key])||cam.loading)return;cam.loading=true;cam.img.src='/api/live/frame?camera='+encodeURIComponent(cam.key)+'&t='+Date.now();});},500);
+  setInterval(async()=>{
+    const m=current.status?.motion;
+    if(!current.connected||document.hidden||!clientId||m?.owner!==clientId||!heartbeatModes.has(m?.mode)||(heartbeatPending&&sameSession(m,heartbeatPending)))return;
+    const requestSession=sessionSnapshot(m);heartbeatPending=requestSession;
+    try{
+      await R5.post('/api/motion/heartbeat',{client_id:clientId});
+      if(sameSession(current.status?.motion,requestSession)){clearHeartbeatError();update(current);}
+    }catch(error){
+      // A response from an older owner/mode/generation must never alter the new session.
+      if(!sameSession(current.status?.motion,requestSession))return;
+      try{
+        const latest=await R5.api('/api/status');
+        if(!sameSession(current.status?.motion,requestSession))return;
+        const next=latest.motion;
+        if(Number.isFinite(next?.session_generation)&&Number.isFinite(requestSession.generation)&&next.session_generation<requestSession.generation)return;
+        if(typeof R5.acceptStatus==='function'){if(R5.acceptStatus(latest)===false)return;}
+        else update({...R5.state,connected:true,status:latest});
+        if(!heartbeatModes.has(next?.mode)||!sameSession(next,requestSession)){clearHeartbeatError();update(current);return;}
+        // acceptStatus may reject a stale response; recheck the actually displayed session.
+        if(!sameSession(current.status?.motion,requestSession))return;
+        heartbeatError='当前会话续期未确认：'+error.message+'。请检查连接与会话状态。';heartbeatErrorSession=requestSession;update(current);
+      }catch(readError){
+        if(sameSession(current.status?.motion,requestSession)&&heartbeatModes.has(current.status?.motion?.mode)){
+          heartbeatError='无法确认会话续期，状态读取失败：'+readError.message+'。请检查连接。';heartbeatErrorSession=requestSession;update(current);
+        }
+      }
+    }finally{if(heartbeatPending===requestSession)heartbeatPending=false;}
+  },1000);
+  window.addEventListener('pagehide',()=>{const m=current.status?.motion;if(clientId&&m?.owner===clientId&&heartbeatModes.has(m?.mode)){fetch('/api/motion/stop',{method:'POST',headers:{'Content-Type':'application/json','X-R5-Panel':'1'},body:'{}',keepalive:true}).catch(()=>{});}});
+})();
+</script>

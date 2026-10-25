@@ -1,0 +1,6 @@
+# Independent Python 3.10 ROS client; ROS/numpy/scipy/OpenCV are inherited from the robot.
+websockets==15.0.1
+msgpack==1.1.2
+pyarrow==25.0.1
+av==15.1.0
+Robotic_Arm==1.1.6

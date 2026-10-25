@@ -1,0 +1,18 @@
+[Unit]
+Description=robot-5 passive data collection and evaluation workbench
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=/mnt/Data/workspace/ymz/open_toilet_lid
+ExecStart=/bin/bash /mnt/Data/workspace/ymz/open_toilet_lid/run.sh dashboard_server.py --port 8765
+Environment=PYTHONUNBUFFERED=1
+Restart=no
+RestartSec=3
+TimeoutStopSec=30
+NoNewPrivileges=true
+StandardOutput=append:/mnt/Data/pi05_open_toilet_r5/logs/dashboard.log
+StandardError=append:/mnt/Data/pi05_open_toilet_r5/logs/dashboard.log
+
+[Install]
+WantedBy=default.target

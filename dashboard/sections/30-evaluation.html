@@ -1,0 +1,147 @@
+<section class="sec" id="evaluation" data-nav="训练评测">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="n">03</span> TRAINING &amp; EVALUATION</div>
+      <h2>让每次训练，都有可回看的评测记录</h2>
+      <p class="lead">导入真实训练与评测结果，查看损失曲线、任务成功次数和关节误差；保留检查点与数据集的对应关系。</p>
+    </div>
+    <div class="eval-status"><span class="status-pill" id="eval-training-status">训练机未接入</span><span id="eval-connection">等待机器人连接后可导入结果。当前没有运行训练或模型评测。</span></div>
+    <div class="card eval-controls">
+      <label for="eval-run">查看记录<select class="field" id="eval-run" disabled><option value="">暂无评测记录</option></select></label>
+      <div class="eval-run-meta"><span id="eval-checkpoint">检查点：—</span><span id="eval-dataset">数据集：—</span><span id="eval-created">导入时间：—</span></div>
+    </div>
+    <div class="eval-metrics">
+      <div class="card"><div class="eval-label">任务成功 / 试验次数</div><div class="eval-value metric" id="eval-success">— <small>/ —</small></div><div class="eval-caption" id="eval-rate">尚无实测结果</div></div>
+      <div class="card"><div class="eval-label">平均关节 MAE</div><div class="eval-value metric"><span id="eval-mae">—</span> <small>°</small></div><div class="eval-caption">预测与参考动作的平均绝对误差</div></div>
+      <div class="card"><div class="eval-label">平均推理延迟</div><div class="eval-value metric"><span id="eval-latency">—</span> <small>ms</small></div><div class="eval-caption">仅显示导入结果的测量值</div></div>
+      <div class="card"><div class="eval-label">最近记录的训练步</div><div class="eval-value metric" id="eval-step">—</div><div class="eval-caption" id="eval-loss">训练损失：— · 验证损失：—</div></div>
+    </div>
+    <div class="eval-plots">
+      <figure class="card figure"><div class="eval-card-head"><h3>训练与验证损失</h3><span class="eval-axis">横轴：优化器 step</span></div><div id="eval-loss-chart" class="eval-plot"><div class="empty">尚无训练曲线<br><span class="small">导入包含 step、loss 的真实训练日志后显示</span></div></div><figcaption class="cap">曲线最多展示约 1,000 个保留极值的采样点，原始记录完整保留。验证损失仅在提供 validation_loss 时显示；损失降低不等于任务成功。</figcaption></figure>
+      <figure class="card figure"><div class="eval-card-head"><h3>六关节误差分布</h3><span class="eval-axis">MAE · degree</span></div><div id="eval-joint-chart" class="eval-plot"><div class="empty">尚无分关节评测<br><span class="small">导入 joint1 至 joint6 的实测误差</span></div></div><figcaption class="cap">关节顺序 joint1 → joint6。仅有平均误差时，不推算各关节结果。</figcaption></figure>
+    </div>
+    <div class="card eval-comparison">
+      <div class="eval-card-head"><h3>评测记录对比</h3><span class="eval-axis" id="eval-count">暂无结果</span></div>
+      <p class="small muted">只有相同数据集、评测方法和硬件的结果才适合直接比较；请在记录备注中注明测量条件。</p>
+      <div id="eval-compare"><div class="empty">还没有可比较的记录。完成训练或现场评测后，从下方导入 JSON。</div></div>
+      <details id="eval-notes-wrap" hidden><summary>当前记录的测量备注</summary><p id="eval-notes"></p></details>
+    </div>
+    <div class="card eval-import">
+      <div><div class="eval-card-head"><h3>导入真实结果</h3><span class="status-pill">JSON 文件</span></div><p class="small muted">先下载空模板，填写运行名称、检查点、数据集与已测量的指标。未测量字段保留 null，训练记录使用空数组。</p><div class="toolbar"><button class="btn" id="eval-template" type="button">下载空模板</button><label class="eval-file-label" for="eval-file">选择结果文件<input class="field" type="file" id="eval-file" accept=".json,application/json" disabled></label></div><div class="eval-import-bottom"><button class="btn primary" type="button" id="eval-import-btn" disabled>校验并导入</button><p id="eval-import-message" class="small muted" role="status" aria-live="polite">等待机器人连接；模板可随时下载。</p></div></div>
+      <div class="eval-import-help"><h4>结果从哪里来？</h4><ol><li>从训练日志提取实际 step 与 loss。</li><li>记录现场成功次数与总试验次数。</li><li>填入离线关节误差、推理延迟与测量条件。</li></ol><p class="small muted">本页只保存和展示结果，不启动 GPU 训练，也不触发机械臂动作。新机器人需要独立数据集与归一化。</p></div>
+    </div>
+    <p class="src">数据来源：机器人上的用户导入记录。缺失指标显示「—」，不以 0 代替；导入结果并不代表已核验实际任务成功。</p>
+  </div>
+</section>
+<style>
+#evaluation .eyebrow{color:var(--ok)}
+#evaluation .eval-status{display:flex;gap:14px;align-items:center;padding:12px 16px;background:#ecfdf5;border:1px solid #cceee0;border-radius:12px;margin-bottom:18px;font-size:13px;color:#386252}
+#evaluation .eval-controls{display:flex;gap:24px;align-items:center;margin-bottom:16px;padding:16px 20px}
+#evaluation .eval-controls label{font-size:12px;font-weight:700;min-width:220px;display:flex;flex-direction:column;gap:5px}
+#evaluation .eval-controls select{width:100%;max-width:350px}
+#evaluation .eval-run-meta{min-width:0;display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px;overflow-wrap:anywhere}
+#evaluation .eval-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+#evaluation .eval-metrics .card{padding:18px 20px}
+#evaluation .eval-label{font-size:13px;color:var(--muted)}
+#evaluation .eval-value{font-size:29px;line-height:1.35;margin:7px 0;color:#064e3b;font-weight:750}
+#evaluation .eval-value small{font-size:15px;color:var(--muted);font-weight:500}
+#evaluation .eval-caption{font-size:11px;color:var(--muted);line-height:1.5}
+#evaluation .eval-plots{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;margin-bottom:18px}
+#evaluation .eval-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+#evaluation h3{font-size:17px;margin:0}
+#evaluation .eval-axis{font-size:11px;color:var(--muted);white-space:nowrap}
+#evaluation .eval-plot{min-height:195px;display:flex;flex-direction:column;justify-content:center}
+#evaluation .eval-plot .empty{padding:38px 16px;line-height:1.9}
+#evaluation .eval-plot svg{width:100%;display:block}
+#evaluation .eval-comparison{margin-bottom:18px}
+#evaluation .eval-scroll{overflow-x:auto}
+#evaluation .eval-table{width:100%;border-collapse:collapse;font-size:12px;min-width:680px}
+#evaluation .eval-table th{text-align:left;padding:10px 12px;background:var(--surface-2);font-weight:600;color:var(--muted)}
+#evaluation .eval-table td{padding:12px;border-top:1px solid var(--line);vertical-align:middle}
+#evaluation .eval-table td:first-child{max-width:220px;overflow-wrap:anywhere}
+#evaluation .eval-table small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+#evaluation .eval-table .selected{background:#f0fdf8}
+#evaluation .eval-bar{height:5px;max-width:125px;background:var(--bg-2);border-radius:4px;margin-top:5px}
+#evaluation .eval-bar i{display:block;height:100%;border-radius:4px;background:var(--ok)}
+#evaluation .eval-bar.latency i{background:var(--brand-3)}
+#evaluation .eval-open{border:0;background:transparent;padding:0;font:inherit;text-align:left;font-weight:700;color:var(--brand);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#evaluation .eval-import{display:grid;grid-template-columns:1.5fr 1fr;gap:28px}
+#evaluation .eval-import-help{border-left:1px solid var(--line);padding-left:26px;font-size:13px}
+#evaluation .eval-import-help ol{padding-left:19px;margin:8px 0 12px}
+#evaluation .eval-import-help li{margin:5px 0}
+#evaluation .eval-file-label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+#evaluation .eval-file-label input{font-size:12px;width:100%}
+#evaluation .eval-import .toolbar{align-items:flex-end;margin-top:16px}
+#evaluation .eval-import-bottom{display:flex;align-items:center;gap:14px;margin-top:15px}
+#evaluation .eval-import-bottom .btn{flex-shrink:0}
+#evaluation .eval-import-bottom p{margin:0;overflow-wrap:anywhere}
+#evaluation #eval-import-message.error{color:var(--bad)}
+#evaluation details{font-size:12px;color:var(--muted);margin-top:14px}
+#evaluation details summary{cursor:pointer}
+#evaluation #eval-notes{white-space:pre-wrap;overflow-wrap:anywhere;padding-top:10px}
+@media(max-width:1000px){#evaluation .eval-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#evaluation .eval-plots{grid-template-columns:1.15fr 1fr}#evaluation .eval-card-head{flex-wrap:wrap;gap:5px}#evaluation .eval-import{grid-template-columns:1.4fr 1fr;gap:20px}#evaluation .eval-import-help{padding-left:20px}}
+@media(max-width:700px){#evaluation .eval-status{align-items:flex-start;flex-direction:column;gap:8px}#evaluation .eval-controls{flex-direction:column;align-items:stretch;gap:10px}#evaluation .eval-controls select{max-width:none}#evaluation .eval-plots{grid-template-columns:1fr}#evaluation .eval-import{grid-template-columns:1fr}#evaluation .eval-import-help{border-left:0;border-top:1px solid var(--line);padding:18px 0 0}#evaluation .eval-value{font-size:25px}#evaluation .eval-import-bottom{align-items:flex-start;flex-direction:column}#evaluation .eval-metrics .card{padding:14px}}
+</style>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id), esc=R5.escape;
+  let selected='',signature='',runs=[],connected=false,importing=false;
+  const finite=v=>typeof v==='number'&&Number.isFinite(v);
+  const value=(v,n=2)=>finite(v)?R5.fmt(v,n):'—';
+  function empty(el,message){el.innerHTML='<div class="empty">'+esc(message)+'</div>';}
+  function render(){
+    const run=runs.find(r=>r.id===selected),e=run?.evaluation||{},training=(run?.training||[]).filter(p=>finite(p.step)).slice().sort((a,b)=>a.step-b.step),last=training.at(-1);
+    $('eval-checkpoint').textContent='检查点：'+(run?.checkpoint||'—');$('eval-dataset').textContent='数据集：'+(run?.dataset||'—');$('eval-created').textContent='导入时间：'+(run?.created_at?new Date(run.created_at).toLocaleString('zh-CN'):'—');
+    $('eval-success').innerHTML=esc(value(e.successes,0))+' <small>/ '+esc(value(e.trials,0))+'</small>';
+    $('eval-rate').textContent=finite(e.successes)&&finite(e.trials)&&e.trials>0?'成功率 '+value(100*e.successes/e.trials,1)+'% · 用户导入':e.trials===0?'尚未进行任务试验':'尚无实测结果';
+    $('eval-mae').textContent=value(e.mean_joint_mae_deg);$('eval-latency').textContent=value(e.mean_latency_ms,1);$('eval-step').textContent=value(last?.step,0);$('eval-loss').textContent='训练损失：'+value(last?.loss,4)+' · 验证损失：'+value(last?.validation_loss,4);
+    const loss=training.filter(p=>finite(p.loss)).map(p=>[p.step,p.loss]),validation=training.filter(p=>finite(p.validation_loss)).map(p=>[p.step,p.validation_loss]);
+    if(loss.length||validation.length)R5.chart($('eval-loss-chart'),[{name:'训练 loss',color:'#059669',points:loss},{name:'验证 loss',color:'#7c3aed',points:validation}],{unit:'step / loss',height:190});else empty($('eval-loss-chart'),'尚无训练曲线。导入实际 step 与 loss 后显示。');
+    const joints=e.per_joint_mae_deg;
+    if(Array.isArray(joints)&&joints.length===6&&joints.every(finite)){
+      const max=Math.max(...joints,0.01),base=155;
+      $('eval-joint-chart').innerHTML='<svg viewBox="0 0 420 190" role="img" aria-label="joint1 至 joint6 平均绝对误差，单位度"><line x1="24" y1="155" x2="405" y2="155" stroke="#cfd7e5"/>'+joints.map((v,i)=>{const x=34+i*62,h=v/max*112;return '<rect x="'+x+'" y="'+(base-h)+'" width="32" height="'+h+'" rx="4" fill="#059669"/><text x="'+(x+16)+'" y="'+(base-h-8)+'" text-anchor="middle" font-size="12" fill="#273449">'+esc(value(v))+'</text><text x="'+(x+16)+'" y="176" text-anchor="middle" font-size="11" fill="#5f6b80">J'+(i+1)+'</text>';}).join('')+'</svg>';
+    }else empty($('eval-joint-chart'),'尚无分关节误差。平均误差不会拆分为各关节结果。');
+    $('eval-count').textContent=runs.length?runs.length+' 条用户导入记录':'暂无结果';
+    if(!runs.length)empty($('eval-compare'),'还没有可比较的记录。完成训练或现场评测后，从下方导入 JSON。');
+    else{
+      const maxMae=Math.max(...runs.map(r=>r.evaluation?.mean_joint_mae_deg||0),.01),maxLatency=Math.max(...runs.map(r=>r.evaluation?.mean_latency_ms||0),.01);
+      function metric(v,max,latency=false){return esc(value(v,latency?1:2))+(finite(v)?'<div class="eval-bar '+(latency?'latency':'')+'"><i style="width:'+Math.max(0,Math.min(100,v/max*100))+'%"></i></div>':'');}
+      $('eval-compare').innerHTML='<div class="eval-scroll"><table class="eval-table"><thead><tr><th>记录 / 数据集</th><th>成功 / 试验</th><th>关节 MAE ↓ (°)</th><th>延迟 ↓ (ms)</th></tr></thead><tbody>'+runs.map(r=>{const m=r.evaluation||{};return '<tr'+(r.id===selected?' class="selected"':'')+'><td><button class="eval-open" type="button" data-run="'+esc(r.id)+'">'+esc(r.name||r.id)+'</button><small>'+esc(r.dataset||'未注明数据集')+'</small></td><td class="metric">'+esc(value(m.successes,0))+' / '+esc(value(m.trials,0))+'</td><td class="metric">'+metric(m.mean_joint_mae_deg,maxMae)+'</td><td class="metric">'+metric(m.mean_latency_ms,maxLatency,true)+'</td></tr>';}).join('')+'</tbody></table></div>';
+    }
+    $('eval-notes-wrap').hidden=!run?.notes;$('eval-notes').textContent=run?.notes||'';
+  }
+  $('eval-run').addEventListener('change',()=>{selected=$('eval-run').value;render();});
+  $('eval-compare').addEventListener('click',event=>{const b=event.target.closest('[data-run]');if(b){selected=b.dataset.run;$('eval-run').value=selected;render();}});
+  function buttons(){ $('eval-file').disabled=!connected||importing;$('eval-import-btn').disabled=!connected||importing||!$('eval-file').files.length; }
+  R5.on(s=>{
+    connected=s.connected;buttons();if(!importing&&!$('eval-file').files.length&&/^(等待|请选择)/.test($('eval-import-message').textContent))$('eval-import-message').textContent=connected?'请选择 JSON 结果文件；导入前会校验格式。':'等待机器人连接；模板可随时下载。';$('eval-training-status').textContent=s.status?.training?.connected?'训练机已连接':'训练机未接入';
+    $('eval-connection').textContent=connected?'当前展示用户导入结果；此面板不启动训练或现场评测。':'等待机器人连接后可导入结果。已有记录可能不是最新状态。';
+    const next=JSON.stringify(s.evaluations||[]);if(next===signature)return;signature=next;runs=s.evaluations||[];
+    if(!runs.some(r=>r.id===selected))selected=runs[0]?.id||'';
+    $('eval-run').innerHTML=runs.length?runs.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name||r.id)+'</option>').join(''):'<option value="">暂无评测记录</option>';$('eval-run').value=selected;$('eval-run').disabled=!runs.length;render();
+  });
+  const template={name:'',checkpoint:'',dataset:'',training:[],evaluation:{successes:null,trials:null,mean_joint_mae_deg:null,mean_latency_ms:null,per_joint_mae_deg:null},notes:''};
+  $('eval-template').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(template,null,2)+'\n'],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='robot5_evaluation_empty.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+  $('eval-file').addEventListener('change',()=>{buttons();$('eval-import-message').classList.remove('error');$('eval-import-message').textContent=$('eval-file').files[0]?'已选择 '+$('eval-file').files[0].name+'，点击校验并导入。':'请选择 JSON 结果文件。';});
+  function validate(input){
+    if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('JSON 顶层应是一个评测记录对象。');
+    const run={};for(const key of ['name','checkpoint','dataset']){if(typeof input[key]!=='string'||!input[key].trim())throw new Error('请填写 '+key+'（运行名称、检查点和数据集均必填）。');if(input[key].length>2000)throw new Error(key+' 过长。');run[key]=input[key].trim();}
+    if(!Array.isArray(input.training)||input.training.length>50000)throw new Error('training 应是数组，最多 50000 个采样点。');
+    let prev=-1;run.training=input.training.map((p,i)=>{if(!p||!Number.isInteger(p.step)||p.step<0||p.step<=prev)throw new Error('第 '+(i+1)+' 个训练点的 step 须是严格递增的非负整数。');prev=p.step;if(!finite(p.loss)||p.loss<0)throw new Error('第 '+(i+1)+' 个训练点的 loss 须是非负有限数字。');const point={step:p.step,loss:p.loss};if(p.validation_loss!==null&&p.validation_loss!==undefined){if(!finite(p.validation_loss)||p.validation_loss<0)throw new Error('validation_loss 须是非负数字或 null。');point.validation_loss=p.validation_loss;}return point;});
+    const e=input.evaluation;if(!e||typeof e!=='object'||Array.isArray(e))throw new Error('evaluation 应为指标对象，未测量字段请填 null。');run.evaluation={};
+    for(const key of ['successes','trials','mean_joint_mae_deg','mean_latency_ms']){const v=e[key];if(v===null||v===undefined){run.evaluation[key]=null;continue;}if(!finite(v)||v<0)throw new Error(key+' 须是非负数字或 null。');if(['successes','trials'].includes(key)&&!Number.isInteger(v))throw new Error(key+' 须是整数。');run.evaluation[key]=v;}
+    if((e.successes!=null)!==(e.trials!=null))throw new Error('成功次数和试验次数需要一起提供。');if(e.successes!=null&&e.successes>e.trials)throw new Error('成功次数不能大于试验次数。');
+    const joints=e.per_joint_mae_deg;if(joints!=null&&(!Array.isArray(joints)||joints.length!==6||!joints.every(v=>finite(v)&&v>=0)))throw new Error('per_joint_mae_deg 应为 6 个非负数字，或 null。');run.evaluation.per_joint_mae_deg=joints??null;
+    if(!run.training.length&&!Object.values(run.evaluation).some(v=>v!==null))throw new Error('空模板没有实测结果；请至少填写一项真实指标或训练曲线。');
+    if(input.notes!=null&&typeof input.notes!=='string')throw new Error('notes 应为文字。');run.notes=input.notes||'';return run;
+  }
+  $('eval-import-btn').addEventListener('click',async()=>{
+    const file=$('eval-file').files[0];if(!file||!connected||importing)return;
+    importing=true;buttons();$('eval-import-message').classList.remove('error');$('eval-import-message').textContent='正在校验并保存…';
+    try{if(file.size>3.5*1024*1024)throw new Error('文件超过 3.5 MiB，请先对训练曲线采样。');let raw;try{raw=JSON.parse(await file.text());}catch(_){throw new Error('文件不是有效 JSON，请检查逗号、引号和数字格式。');}const run=validate(raw);await R5.post('/api/evaluations/import',{run});$('eval-file').value='';$('eval-import-message').textContent='已保存结果；来源标记为用户导入。';R5.toast('评测结果已导入');await R5.refresh();}
+    catch(error){$('eval-import-message').textContent=error.message;$('eval-import-message').classList.add('error');R5.toast(error.message,true);}
+    finally{importing=false;buttons();}
+  });
+})();
+</script>

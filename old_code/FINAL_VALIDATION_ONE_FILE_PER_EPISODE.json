@@ -1,0 +1,36 @@
+{
+  "status": "complete",
+  "dataset_format": "LeRobot v3.0",
+  "layout": "one file per episode",
+  "repo_id": "local/open_toilet_lid_v1",
+  "task": "Open the toilet lid",
+  "fps": 30,
+  "total_episodes": 100,
+  "total_frames": 50187,
+  "global_index_range": [0, 50186],
+  "resolution": [480, 640, 3],
+  "files": {
+    "data_parquet": 100,
+    "episode_meta_parquet": 100,
+    "cam_top_mp4": 100,
+    "cam_bottom_mp4": 100,
+    "cam_wrist_mp4": 100
+  },
+  "validation": {
+    "source_numeric_parquet_exact_equality": true,
+    "source_tasks_checksum_match": true,
+    "source_stats_checksum_match": true,
+    "episode_indices_contiguous_0_to_99": true,
+    "global_frame_indices_contiguous": true,
+    "episode_lengths_match_data_rows": true,
+    "all_video_frame_counts_match": true,
+    "all_h264_packet_payload_hashes_match_source": true,
+    "videos_reencoded": false,
+    "lerobot_first_and_last_frame_decode_all_100_episodes": true
+  },
+  "provenance": {
+    "episodes_0_to_72": "Original three-camera video preserved; state/action reconstructed from demonstration CSV; force filled with zeros.",
+    "episodes_73_to_99": "Physical trajectory replay with new three-camera, arm-state, force and action capture."
+  },
+  "recommended_video_backend": "pyav"
+}

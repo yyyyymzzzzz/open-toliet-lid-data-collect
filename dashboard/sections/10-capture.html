@@ -1,0 +1,225 @@
+<section class="sec" id="capture" data-nav="实时采集">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="eyebrow"><span class="n">01</span> CAPTURE · 实时采集</div>
+      <h2>确认两路画面，再开始一段示教</h2>
+      <p class="lead">被动记录相机与关节状态。夹爪按配置机械固定张开；完成后回看、检查质量，再决定是否用于训练。</p><button type="button" class="btn" id="capture-motion" style="margin-top:12px">打开示教与回放 →</button>
+    </header>
+    <ol class="capture-steps" aria-label="采集流程">
+      <li data-step="prepare" class="current"><span>1</span><div><b>准备</b><small>检查画面、关节与数据新鲜度</small></div></li>
+      <li data-step="record"><span>2</span><div><b>录制</b><small>用现场已有控制程序完成示教</small></div></li>
+      <li data-step="review"><span>3</span><div><b>回看</b><small>确认任务成功后接受样本</small></div></li>
+    </ol>
+    <div class="capture-layout">
+      <div class="capture-observation">
+        <div class="capture-cameras">
+          <figure class="capture-camera" data-camera="cam_bottom">
+            <figcaption><div><b>俯视相机</b><span>cam_bottom · topdown</span></div><span class="status-pill" data-cam-status>待连接</span></figcaption>
+            <div class="capture-view"><img alt="俯视相机实时画面" hidden><div class="capture-placeholder"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="12" width="34" height="26" rx="6"/><path d="M16 12l3-5h10l3 5"/><circle cx="24" cy="25" r="7"/></svg><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div>
+            <div class="capture-camera-meta"><span>源帧率 <b data-cam-hz>—</b> Hz</span><span>帧龄 <b data-cam-age>—</b> ms</span></div>
+          </figure>
+          <figure class="capture-camera" data-camera="cam_wrist">
+            <figcaption><div><b>腕部相机</b><span>cam_wrist · wrist</span></div><span class="status-pill" data-cam-status>待连接</span></figcaption>
+            <div class="capture-view"><img alt="腕部相机实时画面" hidden><div class="capture-placeholder"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="12" width="34" height="26" rx="6"/><path d="M16 12l3-5h10l3 5"/><circle cx="24" cy="25" r="7"/></svg><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div>
+            <div class="capture-camera-meta"><span>源帧率 <b data-cam-hz>—</b> Hz</span><span>帧龄 <b data-cam-age>—</b> ms</span></div>
+          </figure>
+        </div>
+        <div class="capture-joints card">
+          <div class="capture-card-head"><h3>六关节实时角度</h3><span class="small muted">绝对角度 · degree</span></div>
+          <div class="capture-joint-grid" aria-label="当前六关节绝对角度">
+            <div><span>J1</span><b data-joint="0">—</b><small>°</small></div><div><span>J2</span><b data-joint="1">—</b><small>°</small></div><div><span>J3</span><b data-joint="2">—</b><small>°</small></div><div><span>J4</span><b data-joint="3">—</b><small>°</small></div><div><span>J5</span><b data-joint="4">—</b><small>°</small></div><div><span>J6</span><b data-joint="5">—</b><small>°</small></div>
+          </div>
+          <p class="src">按 joint1…joint6 排序；由 ROS 源状态转换为角度。连接中断或状态无效时显示「—」。</p>
+        </div>
+      </div>
+      <aside class="card capture-controls" aria-label="录制控制">
+        <div class="capture-card-head"><h3>当前采集</h3><span id="capture-mode" class="status-pill">待连接</span></div>
+        <p id="capture-ready" class="capture-ready" role="status">等待机器人连接</p>
+        <div class="capture-record-stats"><div><b id="capture-elapsed">—</b><small>录制秒数</small></div><div><b id="capture-frames">—</b><small>已记录帧数</small></div></div>
+        <p class="capture-episode-id" id="capture-episode">尚未开始采集</p>
+        <label class="capture-diagnostic"><input type="checkbox" id="capture-diagnostic" disabled><span><b>诊断采集</b><small>仅检查链路，不纳入训练数据</small></span></label>
+        <div class="capture-actions"><button class="btn primary" id="capture-start" type="button" disabled><span aria-hidden="true">●</span> 开始录制</button><button class="btn" id="capture-stop" type="button" disabled><span aria-hidden="true">■</span> 结束录制</button></div>
+        <p class="capture-action-note">这两个按钮只开始 / 结束数据录制。<strong>不控制机械臂，结束录制不是急停。</strong></p>
+        <p id="capture-error" class="capture-error" role="alert" hidden></p>
+        <div class="capture-review"><span id="capture-next">录制结束后，到数据页检查画面与质量。</span><button type="button" class="btn" id="capture-review">打开数据回看 <span aria-hidden="true">→</span></button></div>
+      </aside>
+    </div>
+    <p class="capture-robot-note">三维模型与两路相机一起显示在「示教与回放」仪表盘，点运动按钮时不用离开画面。</p>
+    <div class="capture-footnote"><span><i></i>画面预览约每 0.5 秒刷新；源帧率反映相机数据频率。</span><span>任务：<b>Open the toilet lid</b></span></div>
+    <details class="capture-details"><summary>采集口径与存储位置</summary><p>模型输入为两路 RGB 480 × 640 图像与 17 维状态；训练语义为 30 Hz。当前 cam_bottom 对应新机器人俯视相机，物理视角不同于旧机器人。</p><p>质量检查要求：至少 2 秒、实际源帧率 ≥ 27 Hz、无重复源帧、最大时间间隙 ≤ 100 ms。只有通过质量检查、非诊断且人工接受的样本才可导出。</p><p>样本写入数据盘 <code>/mnt/Data/pi05_open_toilet_r5/episodes</code>。实时观测来自 <code>observations.py</code>，采集器不发送机械臂动作。</p></details>
+  </div>
+</section>
+<style>
+#capture .capture-robot{margin-top:20px;padding:20px;overflow:hidden}
+#capture .capture-robot-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+#capture .capture-robot-head h3{margin:0;font-size:17px}
+#capture .capture-robot-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+#capture .capture-robot-viewport{position:relative;height:410px;border-radius:11px;overflow:hidden;background:#eef2f7;border:1px solid var(--line)}
+#capture #capture-robot-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;outline-offset:-4px}
+#capture #capture-robot-canvas:active{cursor:grabbing}
+#capture .capture-robot-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);padding:25px;text-align:center;background:#eef2f7dd;pointer-events:none}
+#capture .capture-robot-overlay[hidden]{display:none}
+#capture .capture-robot-axis{position:absolute;bottom:12px;left:14px;font:10px var(--mono);color:var(--muted);pointer-events:none}
+#capture .capture-robot-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+#capture .capture-robot-tools>span{font-size:12px;color:var(--ink-2)}
+#capture .capture-robot-tools>div{display:flex;gap:8px}
+#capture .capture-robot-tools .btn{font-size:12px;padding:7px 12px;min-height:35px}
+#capture .capture-robot-tools .btn[hidden]{display:none}
+#capture .capture-robot-note{font-size:11px;color:var(--muted);margin:10px 0 0}
+#capture .capture-robot-source{font-size:11px;color:var(--muted);margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+#capture .capture-robot-source summary{cursor:pointer}
+#capture .capture-robot-source p{overflow-wrap:anywhere;font-family:var(--mono);margin:7px 0 0}
+@media(max-width:680px){#capture .capture-robot-viewport{height:340px}#capture .capture-robot-head{align-items:flex-start;flex-direction:column}#capture .capture-robot-tools{align-items:flex-start;flex-direction:column}}
+
+#capture .capture-steps{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:0;margin:0 0 22px}
+#capture .capture-steps li{display:flex;gap:11px;align-items:center;padding:13px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--muted)}
+#capture .capture-steps li>span{display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;border-radius:50%;background:var(--bg-2);font-weight:750}
+#capture .capture-steps li b{display:block;font-size:14px;color:var(--ink-2)}
+#capture .capture-steps li small{font-size:12px;display:block;margin-top:1px}
+#capture .capture-steps li.current{border-color:#c7d2fe;background:#f0f1ff}
+#capture .capture-steps li.current>span{color:white;background:var(--brand)}
+#capture .capture-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+#capture .capture-cameras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#capture .capture-camera{margin:0;border:1px solid var(--line);border-radius:14px;background:white;overflow:hidden;box-shadow:var(--shadow)}
+#capture .capture-camera figcaption{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 14px}
+#capture .capture-camera figcaption b{font-size:14px;display:block}
+#capture .capture-camera figcaption div>span{display:block;font:10px var(--mono);color:var(--muted);margin-top:3px}
+#capture .capture-camera figcaption>.status-pill{font-size:11px;flex-shrink:0}
+#capture .capture-view{aspect-ratio:16/9;position:relative;background:#111b2d;overflow:hidden}
+#capture .capture-view img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+#capture .capture-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#b8c4d8;background:radial-gradient(ellipse at 50% 35%,#21334d,#111b2d 75%);text-align:center;padding:10px}
+#capture .capture-placeholder[hidden]{display:none}
+#capture .capture-placeholder svg{width:44px;height:44px;fill:none;stroke:#7f93b2;stroke-width:1.3;margin-bottom:12px}
+#capture .capture-placeholder b{font-size:14px;font-weight:600}
+#capture .capture-placeholder span{font-size:11px;margin-top:5px;color:#8599b7}
+#capture .capture-camera-meta{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+#capture .capture-camera-meta b{color:var(--ink-2);font-size:13px;margin-left:3px}
+#capture .capture-joints{margin-top:16px;padding:17px 18px}
+#capture .capture-card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:15px}
+#capture .capture-card-head h3{font-size:15px;margin:0}
+#capture .capture-card-head>.small{font-size:11px}
+#capture .capture-joint-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+#capture .capture-joint-grid>div{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 9px;min-width:0;white-space:nowrap}
+#capture .capture-joint-grid span{display:block;font:11px var(--mono);color:var(--muted);margin-bottom:4px}
+#capture .capture-joint-grid b{font-size:19px;line-height:1.3;font-variant-numeric:tabular-nums;font-weight:650}
+#capture .capture-joint-grid small{color:var(--muted);margin-left:3px;font-size:12px}
+#capture .capture-controls{padding:20px}
+#capture .capture-ready{font-size:12px;padding:10px 12px;border-radius:9px;background:var(--bg-2);color:var(--muted);margin-bottom:16px;overflow-wrap:anywhere}
+#capture .capture-ready.good{color:#047857;background:var(--ok-bg)}
+#capture .capture-ready.warn{color:#92400e;background:var(--warn-bg)}
+#capture .capture-record-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#capture .capture-record-stats>div+div{border-left:1px solid var(--line);padding-left:16px}
+#capture .capture-record-stats b{font-size:27px;line-height:1.2;display:block;font-variant-numeric:tabular-nums}
+#capture .capture-record-stats small{display:block;font-size:11px;color:var(--muted);margin-top:6px}
+#capture .capture-episode-id{font:10px/1.6 var(--mono);color:var(--muted);overflow-wrap:anywhere;margin:12px 0 17px}
+#capture .capture-diagnostic{display:flex;gap:9px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line);cursor:pointer}
+#capture .capture-diagnostic input{accent-color:var(--brand);width:16px;height:16px;margin:3px 0 0;flex-shrink:0}
+#capture .capture-diagnostic b{display:block;font-size:13px;font-weight:600}
+#capture .capture-diagnostic small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+#capture .capture-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:1px}
+#capture .capture-actions .btn{font-size:13px;padding:10px 8px;gap:5px}
+#capture .capture-actions .btn span{font-size:10px}
+#capture .capture-action-note{font-size:11px;line-height:1.7;color:var(--muted);margin:10px 0 16px}
+#capture .capture-action-note strong{display:block;color:var(--ink-2);font-weight:600}
+#capture .capture-error{color:var(--bad);font-size:12px;overflow-wrap:anywhere;padding:9px;background:var(--bad-bg);border-radius:8px}
+#capture .capture-review{padding-top:13px;border-top:1px solid var(--line)}
+#capture .capture-review>span{font-size:11px;color:var(--muted);display:block;line-height:1.7;margin-bottom:10px}
+#capture .capture-review .btn{width:100%;font-size:12px;justify-content:space-between;min-height:37px;padding:8px 12px}
+#capture .capture-footnote{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px;color:var(--muted);font-size:11px}
+#capture .capture-footnote i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-right:6px}
+#capture .capture-footnote b{font-weight:500}
+#capture .capture-details{font-size:12px;color:var(--muted);margin-top:15px;border-top:1px solid var(--line);padding-top:13px}
+#capture .capture-details summary{cursor:pointer;color:var(--ink-2);font-weight:600;min-height:24px}
+#capture .capture-details p{margin:8px 0 0;max-width:900px}
+@media(max-width:1100px){#capture .capture-layout{grid-template-columns:minmax(0,1fr) 280px;gap:14px}#capture .capture-joint-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#capture .capture-camera figcaption{padding:11px 10px}#capture .capture-camera figcaption div>span{font-size:9px}#capture .capture-camera-meta{padding:9px 10px;font-size:10px}#capture .capture-camera-meta b{font-size:12px}#capture .capture-controls{padding:17px}#capture .capture-cameras{gap:12px}#capture .capture-steps li{padding:11px 12px}#capture .capture-steps li small{font-size:11px}}
+@media(max-width:800px){#capture .capture-layout{grid-template-columns:1fr}#capture .capture-joint-grid{grid-template-columns:repeat(6,minmax(0,1fr))}#capture .capture-controls{max-width:none}#capture .capture-steps li small{display:none}#capture .capture-steps li{gap:7px;padding:10px}#capture .capture-placeholder b{font-size:12px}#capture .capture-placeholder span{font-size:10px}}
+@media(max-width:520px){#capture .capture-cameras{grid-template-columns:1fr}#capture .capture-joint-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#capture .capture-steps{gap:7px}#capture .capture-steps li>span{width:24px;height:24px;font-size:12px}#capture .capture-steps li b{font-size:12px}}
+</style>
+<script>
+(()=>{
+  const root=document.getElementById('capture'),find=id=>root.querySelector('#'+id),start=find('capture-start'),stop=find('capture-stop'),diagnostic=find('capture-diagnostic'),error=find('capture-error');
+  let pending=false,current=R5.state,requestError='';
+  const cams=[...root.querySelectorAll('[data-camera]')].map(card=>({card,key:card.dataset.camera,img:card.querySelector('img'),placeholder:card.querySelector('.capture-placeholder'),loading:false}));
+  function clearFrame(cam,message,detail){cam.img.hidden=true;cam.placeholder.hidden=false;cam.placeholder.querySelector('b').textContent=message;cam.placeholder.querySelector('span').textContent=detail;}
+  cams.forEach(cam=>{cam.img.onload=()=>{cam.loading=false;const data=current.status?.observation?.cameras?.[cam.key];if(current.connected&&data?.available&&Number.isFinite(data.age_s)&&data.age_s<=.15){cam.img.hidden=false;cam.placeholder.hidden=true;}};cam.img.onerror=()=>{cam.loading=false;clearFrame(cam,'画面暂不可用','等待下一次画面刷新');};});
+  function update(state){
+    current=state;const online=state.connected,s=online?state.status:null,rec=s?.recorder||{},obs=s?.observation||{},recording=s?.mode==='RECORDING',busyExport=state.exports.some(x=>x.status==='RUNNING'),motionBusy=['TEACHING','HOMING','RESETTING','REPLAYING','STOPPING'].includes(s?.motion?.mode);
+    start.disabled=pending||!online||!obs.ready||recording||busyExport||motionBusy||!['IDLE','REVIEW','ERROR'].includes(s?.mode);
+    stop.disabled=pending||!online||!recording||motionBusy;diagnostic.disabled=pending||!online||recording||motionBusy;
+    if(recording)diagnostic.checked=!!rec.diagnostic;
+    find('capture-mode').textContent=!online?'待连接':({IDLE:'待采集',RECORDING:'录制中',REVIEW:'待回看',ERROR:'需检查'}[s.mode]||'未知状态');
+    find('capture-mode').className='status-pill'+(recording?' good':s?.mode==='ERROR'?' warn':'');
+    const ready=find('capture-ready');ready.className='capture-ready'+(online?(obs.ready?' good':' warn'):'');
+    ready.textContent=!online?'等待机器人连接':motionBusy?'示教或回放正在进行，请到示教与回放页管理当前任务':recording?(rec.diagnostic?'正在记录诊断样本':'正在记录示教样本'):busyExport?'数据正在导出，请完成后开始录制':obs.ready?'观测已就绪，可以开始录制':(obs.reason||'等待完整相机、关节与坐标变换');
+    find('capture-elapsed').textContent=R5.fmt(online?rec.elapsed_s:null,1);find('capture-frames').textContent=R5.fmt(online?rec.frames:null,0);
+    find('capture-episode').textContent=online&&rec.id?rec.id:'尚未开始采集';
+    root.querySelectorAll('[data-joint]').forEach(el=>el.textContent=R5.fmt(online&&Array.isArray(obs.state)?obs.state?.[Number(el.dataset.joint)]:null,1));
+    root.querySelectorAll('[data-step]').forEach(el=>el.classList.toggle('current',el.dataset.step===(recording?'record':s?.mode==='REVIEW'?'review':'prepare')));
+    find('capture-next').textContent=s?.mode==='REVIEW'?'本段已结束。请回看并检查质量，再接受或拒绝样本。':'录制结束后，到数据页检查画面与质量。';
+    error.textContent=rec.error||requestError;error.hidden=!error.textContent;
+    cams.forEach(cam=>{const data=online?obs.cameras?.[cam.key]:null,tag=cam.card.querySelector('[data-cam-status]'),fresh=!!data?.available&&Number.isFinite(data.age_s)&&data.age_s<=.15;
+      tag.textContent=!online?'待连接':fresh?'实时':Number.isFinite(data?.age_s)?'已过期':'无画面';tag.className='status-pill'+(online?(fresh?' good':' warn'):'');
+      cam.card.querySelector('[data-cam-hz]').textContent=R5.fmt(data?.hz,1);cam.card.querySelector('[data-cam-age]').textContent=R5.fmt(data?.age_s==null?null:data.age_s*1000,0);
+      if(!online)clearFrame(cam,'等待机器人连接','连接后自动显示实时画面');
+      else if(Number.isFinite(data?.age_s)&&(!data.available||!fresh))clearFrame(cam,'画面已过期','请检查相机与 ROS 数据源');
+      else if(!data?.available)clearFrame(cam,'等待相机数据','请检查相机与 ROS 数据源');
+    });
+  }
+  async function record(action){
+    if(pending||(action==='start'?start.disabled:stop.disabled))return;
+    pending=true;requestError='';update(current);
+    try{await R5.post('/api/record/'+action,action==='start'?{diagnostic:diagnostic.checked}:{});await R5.refresh();R5.toast(action==='start'?'已开始数据录制':'已结束数据录制，请回看样本');}
+    catch(e){requestError=e.message;R5.toast(e.message,true);}
+    finally{pending=false;update(R5.state);}
+  }
+  start.addEventListener('click',()=>record('start'));stop.addEventListener('click',()=>record('stop'));find('capture-review').addEventListener('click',()=>R5.selectTab('library'));
+  find('capture-motion').addEventListener('click',()=>R5.selectTab('motion'));
+  R5.on(update);
+  setInterval(()=>{if(!current.connected||root.hidden||document.hidden)return;cams.forEach(cam=>{const data=current.status?.observation?.cameras?.[cam.key];if(!data?.available||!Number.isFinite(data.age_s)||data.age_s>.15||cam.loading)return;cam.loading=true;cam.img.src='/api/live/frame?camera='+encodeURIComponent(cam.key)+'&t='+Date.now();});},500);
+})();
+</script>
+<script>
+(()=>{
+  const section=document.getElementById('capture'),el=id=>document.getElementById('capture-robot-'+id),canvas=el('canvas'),overlay=el('overlay'),badge=el('status');
+  let state=R5.state,model=null,drawables=[],jointTree=[],lastQ=null,lastPoseTime=null,loading=false,failed=false,dirty=true,fitted=false,totalTriangles=0,modelError='',lastSignature='';
+  let yaw=-.8,pitch=.42,distance=2,center=[0,0,.35],radius=.6,drag=null;
+  const gl=canvas.getContext('webgl',{antialias:true,alpha:false,preserveDrawingBuffer:true});
+  const ident=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+  const mul=(a,b)=>{const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o;};
+  const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],norm=a=>{const n=Math.hypot(...a)||1;return a.map(x=>x/n);};
+  const translate=v=>{const m=ident();m[12]=v[0];m[13]=v[1];m[14]=v[2];return m;};
+  const rotate=(axis,t)=>{const [x,y,z]=norm(axis),c=Math.cos(t),s=Math.sin(t),v=1-c;return new Float32Array([x*x*v+c,y*x*v+z*s,z*x*v-y*s,0,x*y*v-z*s,y*y*v+c,z*y*v+x*s,0,x*z*v+y*s,y*z*v-x*s,z*z*v+c,0,0,0,0,1]);};
+  const vec=(v,fallback)=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)?v:fallback;
+  function origin(xyz,rpy){const [r,p,y]=vec(rpy,[0,0,0]);return mul(translate(vec(xyz,[0,0,0])),mul(rotate([0,0,1],y),mul(rotate([0,1,0],p),rotate([1,0,0],r))));}
+  function point(m,p){return [m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12],m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14]];}
+  function normalMatrix(m){const a=[m[0],m[1],m[2]],b=[m[4],m[5],m[6]],c=[m[8],m[9],m[10]],bc=cross(b,c),det=dot(a,bc)||1;return new Float32Array([...bc,...cross(c,a),...cross(a,b)].map(x=>x/det));}
+  function transforms(){const result=new Map([[model.root,ident()]]);for(const j of jointTree){let q=0;if(j.index>=0)q=(lastQ?.[j.index]||0)*Math.PI/180;else if(j.type==='prismatic')q=Number.isFinite(j.upper)?j.upper:0;const movement=j.type==='revolute'||j.type==='continuous'?rotate(j.axis,q):j.type==='prismatic'?translate(j.axis.map(x=>x*q)):ident();result.set(j.child,mul(result.get(j.parent),mul(j.origin,movement)));}return result;}
+  function fit(){if(!model||!lastQ)return;const poses=transforms(),lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(const d of drawables){const m=mul(poses.get(d.link),d.local);for(let i=0;i<8;i++){const p=point(m,[d.bounds[(i&1)?1:0][0],d.bounds[(i&2)?1:0][1],d.bounds[(i&4)?1:0][2]]);for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],p[k]);hi[k]=Math.max(hi[k],p[k]);}}}if(lo.every(Number.isFinite)){center=lo.map((x,i)=>(x+hi[i])/2);radius=Math.max(.1,Math.hypot(...hi.map((x,i)=>x-lo[i]))/2);distance=radius*3.1;}yaw=-.8;pitch=.42;fitted=true;dirty=true;}
+  let program,attrP,attrN,uModel,uVP,uNormal,uColor;
+  function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+  try{if(!gl)throw Error('浏览器未提供 WebGL，无法显示真实网格。');program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,'attribute vec3 p;attribute vec3 n;uniform mat4 model;uniform mat4 vp;uniform mat3 nm;varying vec3 normal;void main(){normal=nm*n;gl_Position=vp*model*vec4(p,1.0);}'));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,'precision mediump float;varying vec3 normal;uniform vec4 color;void main(){vec3 n=normalize(normal);float light=.35+.55*abs(dot(n,normalize(vec3(.5,-.6,1.0))))+.10*abs(n.z);gl_FragColor=vec4(color.rgb*light,1.0);}'));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));attrP=gl.getAttribLocation(program,'p');attrN=gl.getAttribLocation(program,'n');uModel=gl.getUniformLocation(program,'model');uVP=gl.getUniformLocation(program,'vp');uNormal=gl.getUniformLocation(program,'nm');uColor=gl.getUniformLocation(program,'color');gl.enable(gl.DEPTH_TEST);gl.clearColor(.933,.949,.969,1);}catch(e){failed=true;modelError=e.message;overlay.textContent=modelError;badge.textContent='三维显示不可用';}
+  function install(data){
+    if(!data||data.root!=='base_link_arm'||!Array.isArray(data.links)||!Array.isArray(data.joints))throw Error('模型 JSON 缺少 base_link_arm 根或 links/joints。');
+    const links=new Map(data.links.map(l=>[l.name,l])),seen=new Set([data.root]),queue=[data.root],tree=[];
+    if(!links.has(data.root))throw Error('模型缺少根 link。');
+    while(queue.length){const parent=queue.shift();for(const j of data.joints.filter(j=>j.parent===parent)){if(seen.has(j.child))throw Error('URDF 子树存在循环或重复父节点。');if(!links.has(j.child))throw Error('关节引用了不存在的 link。');seen.add(j.child);queue.push(j.child);const match=/^joint_?([1-6])$/.exec(j.name);tree.push({...j,index:match?Number(match[1])-1:-1,origin:origin(j.xyz,j.rpy),axis:norm(vec(j.axis,[1,0,0]))});}}
+    const indices=new Set(tree.filter(j=>j.index>=0).map(j=>j.index));if(indices.size!==6)throw Error('六轴 joint1…joint6 映射不完整，停止姿态显示以免错配。');
+    const next=[];let count=0;for(const name of seen)for(const visual of links.get(name).visuals||[]){const v=visual.vertices;if(!Array.isArray(v)||!v.length)continue;if(v.length%9)throw Error('网格三角形顶点数不合法。');const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity],buffer=new Float32Array(v.length*2);for(let i=0;i<v.length;i+=9){const a=v.slice(i,i+3),b=v.slice(i+3,i+6),c=v.slice(i+6,i+9);if(![...a,...b,...c].every(Number.isFinite))throw Error('网格含非有限顶点。');const n=norm(cross(b.map((x,k)=>x-a[k]),c.map((x,k)=>x-a[k])));for(let k=0;k<3;k++){const off=(i/3+k)*6;for(let d=0;d<3;d++){const value=v[i+k*3+d];buffer[off+d]=value;buffer[off+d+3]=n[d];lo[d]=Math.min(lo[d],value);hi[d]=Math.max(hi[d],value);}}}const gpu=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,gpu);gl.bufferData(gl.ARRAY_BUFFER,buffer,gl.STATIC_DRAW);const scale=vec(visual.scale,[1,1,1]),sm=ident();sm[0]=scale[0];sm[5]=scale[1];sm[10]=scale[2];next.push({link:name,buffer:gpu,count:v.length/3,local:mul(origin(visual.xyz,visual.rpy),sm),bounds:[lo,hi],color:Array.isArray(visual.color)&&visual.color.length===4?visual.color:[.48,.57,.7,1]});count+=v.length/9;}
+    if(!count)throw Error('根子树中没有可显示的三角网格。');drawables.forEach(d=>gl.deleteBuffer(d.buffer));drawables=next;jointTree=tree;model={root:data.root};totalTriangles=count;el('source').textContent=(data.source||'未提供路径')+' · '+seen.size+' 个 link · '+R5.fmt(count,0)+' 个三角形';el('hash').textContent='SHA-256: '+(data.sha256||'未提供');fitted=false;dirty=true;
+  }
+  async function load(){if(loading||model||!gl||!program||!state.connected||canvas.closest('.sec').hidden||document.hidden)return;loading=true;failed=false;modelError='';badge.textContent='加载真实 URDF';overlay.hidden=false;overlay.textContent='正在加载真实 URDF 网格…';el('retry').hidden=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);try{const response=await fetch('/api/robot-model',{cache:'no-store',headers:{'X-R5-Panel':'1'},signal:controller.signal});if(!response.ok)throw Error('模型读取失败：HTTP '+response.status);install(await response.json());}catch(e){failed=true;modelError=e.name==='AbortError'?'模型加载超时，请重试。':e.message;el('retry').hidden=false;}finally{clearTimeout(timer);loading=false;update(state);}}
+  function update(s){state=s;const obs=s.status?.observation||{},q=obs.state?.slice(0,6),cameraFresh=['cam_bottom','cam_wrist'].every(k=>obs.cameras?.[k]?.available&&Number.isFinite(obs.cameras[k].age_s)&&obs.cameras[k].age_s<=.15),fresh=s.connected&&obs.ready&&cameraFresh&&Array.isArray(q)&&q.length===6&&q.every(Number.isFinite),lib=document.getElementById('library');
+    if(!lib||lib.hidden)libraryPose=false;
+    if(fresh&&!libraryPose){const sig=q.join(',');if(sig!==lastSignature){lastQ=q;lastSignature=sig;dirty=true;}lastPoseTime=new Date().toLocaleTimeString('zh-CN');}
+    if(failed){badge.textContent='模型加载失败';badge.className='status-pill warn';overlay.hidden=false;overlay.textContent=modelError;}
+    else if(!loading){badge.textContent=!model?(s.connected?'等待加载模型':'等待机器人连接'):fresh?'实时关节姿态':lastQ?'最后姿态 · 数据已过期':'等待有效关节';badge.className='status-pill'+(model?(fresh?' good':' warn'):'');overlay.hidden=!!(model&&lastQ);overlay.textContent=model?'模型已加载，等待有效关节姿态':'连接后读取真实 URDF 模型';}
+    el('pose').textContent=lastQ?(fresh?'观测更新 ':'保留最后姿态 ')+lastPoseTime+' · 夹爪为配置示意':'尚无有效关节姿态 · 夹爪为配置示意';if(model&&lastQ&&!fitted)fit();if(!model&&!loading&&!failed)load();
+  }
+  function render(){if(!gl||!program||!model||!lastQ||canvas.closest('.sec').hidden||document.hidden||!dirty)return;const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,1.5),w=Math.round(rect.width*ratio),h=Math.round(rect.height*ratio);if(!w||!h)return;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);const eye=[center[0]+distance*Math.cos(pitch)*Math.cos(yaw),center[1]+distance*Math.cos(pitch)*Math.sin(yaw),center[2]+distance*Math.sin(pitch)],z=norm(eye.map((v,i)=>v-center[i])),x=norm(cross([0,0,1],z)),y=cross(z,x),view=new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]),f=1/Math.tan(Math.PI/8),near=Math.max(.001,radius*.005),far=distance+radius*20,proj=new Float32Array([f/(w/h),0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0]);gl.uniformMatrix4fv(uVP,false,mul(proj,view));gl.enableVertexAttribArray(attrP);gl.enableVertexAttribArray(attrN);const poses=transforms();for(const d of drawables){const m=mul(poses.get(d.link),d.local);gl.bindBuffer(gl.ARRAY_BUFFER,d.buffer);gl.vertexAttribPointer(attrP,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(attrN,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(uModel,false,m);gl.uniformMatrix3fv(uNormal,false,normalMatrix(m));gl.uniform4fv(uColor,d.color);gl.drawArrays(gl.TRIANGLES,0,d.count);}dirty=false;}
+  canvas.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!drag)return;yaw-=(e.clientX-drag[0])*.007;pitch=Math.max(-1.4,Math.min(1.4,pitch+(e.clientY-drag[1])*.007));drag=[e.clientX,e.clientY];dirty=true;});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);canvas.addEventListener('wheel',e=>{e.preventDefault();distance=Math.max(radius*.25,Math.min(radius*15,distance*Math.exp(e.deltaY*.001)));dirty=true;},{passive:false});canvas.addEventListener('keydown',e=>{let handled=true;if(e.key==='ArrowLeft')yaw-=.1;else if(e.key==='ArrowRight')yaw+=.1;else if(e.key==='ArrowUp')pitch=Math.min(1.4,pitch+.1);else if(e.key==='ArrowDown')pitch=Math.max(-1.4,pitch-.1);else if(e.key==='+'||e.key==='=')distance=Math.max(radius*.25,distance*.9);else if(e.key==='-')distance=Math.min(radius*15,distance/ .9);else if(e.key.toLowerCase()==='r')fit();else handled=false;if(handled){e.preventDefault();dirty=true;}});
+  let libraryPose=false;
+  function placeCanvas(){const lib=document.getElementById('library'),host=document.getElementById('lib-robot-host'),home=document.querySelector('#motion .capture-robot-viewport');const target=lib&&!lib.hidden&&host?host:home;if(target&&canvas.parentElement!==target){target.appendChild(canvas);dirty=true;}}
+  R5.setRobotPose=function(q){if(!Array.isArray(q)||q.length<6||!q.every(Number.isFinite))return;libraryPose=true;lastQ=q.slice(0,6);lastSignature=lastQ.join(',');dirty=true;render();};
+  el('reset').addEventListener('click',fit);el('retry').addEventListener('click',()=>{failed=false;load();});new ResizeObserver(()=>{dirty=true;}).observe(canvas);new MutationObserver(()=>{placeCanvas();dirty=true;update(state);}).observe(section,{attributes:true,attributeFilter:['hidden']});for(const id of ['motion','library']){const sec=document.getElementById(id);if(sec)new MutationObserver(()=>{if(id==='motion'&&!sec.hidden)libraryPose=false;placeCanvas();dirty=true;update(state);}).observe(sec,{attributes:true,attributeFilter:['hidden']});}document.addEventListener('visibilitychange',()=>{dirty=true;update(state);});canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();failed=true;modelError='WebGL 上下文丢失，请刷新页面重新加载。';update(state);});(R5.subscribe||R5.on)(update);setInterval(()=>{placeCanvas();render();},100);placeCanvas();
+})();
+</script>

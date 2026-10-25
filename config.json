@@ -1,0 +1,63 @@
+{
+  "robot_id": "robot-5",
+  "task": "Open the toilet lid",
+  "ros_domain_id": 211,
+  "ros_localhost_only": true,
+  "joints_topic": "/arm_joint_states",
+  "joint_names": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "joint6"
+  ],
+  "base_frame": "base_link_arm",
+  "tcp_frame": "gripper",
+  "cameras": {
+    "cam_bottom": {
+      "topic": "/camera_topdown/color/image_raw/compressed",
+      "serial": "CP0N763000LA",
+      "physical_view": "topdown"
+    },
+    "cam_wrist": {
+      "topic": "/camera_wrist/color/image_raw/compressed",
+      "serial": "CP0N763000ER",
+      "physical_view": "wrist"
+    }
+  },
+  "image_size": [
+    480,
+    640
+  ],
+  "image_transform": "letterbox_rgb",
+  "fps": 30,
+  "max_age_s": 0.15,
+  "max_camera_skew_s": 0.04,
+  "max_joint_camera_skew_s": 0.04,
+  "max_tf_joint_skew_s": 0.04,
+  "minimum_free_gib": 5,
+  "data_root": "/home/xzrobot/workspace/ymz/open_toilet_lid/episodes",
+  "policy_host": "127.0.0.1",
+  "policy_port": 8000,
+  "state_semantics": "joints_deg + TF(base_link_arm,gripper):xyz_m,euler_xyz_rad,quaternion_wxyz + constant_zero_gripper",
+  "mapping_note": "cam_bottom uses topdown as in the currently deployed VLA config; new robot dataset only, not interchangeable with old camera geometry",
+  "policy_motion_enabled": false,
+  "manual_motion_enabled": true,
+  "gripper_policy": {
+    "mode": "fixed_maximum_open",
+    "verification": "user_configured_fixed",
+    "require_operator_confirmation": false,
+    "model_gripper_value": 0,
+    "device_feedback_required": false,
+    "note": "User-selected mechanically fixed maximum opening; no aperture measurement or per-session confirmation."
+  },
+  "manual_reset_pose_deg": [
+    0,
+    0,
+    0,
+    0,
+    90,
+    0
+  ]
+}

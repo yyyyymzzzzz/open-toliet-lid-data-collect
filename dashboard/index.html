@@ -1,0 +1,1254 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>robot-5 · 采集与评测工作台</title><style>/* Shared design system for visual overview pages. Sections style themselves only under #<their id>. */
+:root{
+  --bg:#f5f7fb; --bg-2:#edf1f8; --surface:#ffffff; --surface-2:#fafbfe;
+  --ink:#0b1220; --ink-2:#273449; --muted:#5f6b80; --faint:#94a0b4;
+  --line:#e3e8f1; --line-2:#cfd7e5;
+  --brand:#4f46e5; --brand-2:#7c3aed; --brand-3:#0891b2;
+  --grad:linear-gradient(120deg,#4f46e5 0%,#7c3aed 45%,#0891b2 100%);
+  --ok:#059669; --warn:#d97706; --bad:#dc2626; --info:#2563eb;
+  --ok-bg:#ecfdf5; --warn-bg:#fffbeb; --bad-bg:#fef2f2; --info-bg:#eff6ff;
+  /* version bands (fixed across all sections; names in dp.js DP.ERAS) */
+  --v0:#64748b; --v1:#7c3aed; --v2:#2563eb; --v3:#0891b2; --v4:#059669; --v5:#d97706; --v6:#db2777; --v7:#ea580c;
+  /* lanes (themes) */
+  --l-arm:#4f46e5; --l-eval:#9333ea; --l-thru:#d97706; --l-plat:#0891b2; --l-data:#ea580c;
+  --radius:16px; --radius-sm:10px; --radius-xs:7px;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 10px 28px -14px rgba(15,23,42,.16);
+  --shadow-lg:0 2px 6px rgba(15,23,42,.05),0 28px 56px -24px rgba(15,23,42,.30);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",Inter,Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --wrap:1200px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--font);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:var(--brand);text-decoration:none} a:hover{text-decoration:underline}
+code,.mono{font-family:var(--mono);font-size:.86em}
+code{background:#eef1f8;border:1px solid #e2e7f1;border-radius:6px;padding:.05em .4em;color:#1e293b;overflow-wrap:anywhere}
+b,strong{font-weight:700}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 32px}
+img,svg{max-width:100%}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;color:#e7ebf5;background:
+  radial-gradient(900px 420px at 85% -10%,rgba(124,58,237,.45),transparent 60%),
+  radial-gradient(700px 380px at 0% 110%,rgba(8,145,178,.40),transparent 60%),
+  linear-gradient(160deg,#0a1024 0%,#111a3a 55%,#0b1430 100%)}
+.hero::before{content:"";position:absolute;inset:0;background-image:
+  linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:radial-gradient(ellipse at 60% 30%,#000 30%,transparent 75%);pointer-events:none}
+.hero .wrap{position:relative;padding-top:64px;padding-bottom:56px}
+.hero .kicker{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;font-weight:700}
+.hero .kicker i{width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 0 4px rgba(52,211,153,.18)}
+.hero h1{margin:14px 0 10px;font-size:44px;line-height:1.15;font-weight:800;letter-spacing:-.01em;color:#fff}
+.hero h1 .grad{background:linear-gradient(90deg,#a5b4fc,#c4b5fd 40%,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{font-size:18px;color:#c7cee0;max-width:880px;margin:0}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:18px;font-size:13px;color:#9aa6c2}
+.hero .meta code{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#dbe2f3}
+.hero-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+.hero-kpi{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px 18px;backdrop-filter:blur(6px)}
+.hero-kpi .v{font-size:32px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1.1}
+.hero-kpi .v small{font-size:15px;font-weight:600;color:#c7d2fe;margin-left:3px}
+.hero-kpi .l{font-size:13px;color:#c7cee0;margin-top:4px}
+.hero-kpi .s{font-size:11.5px;color:#8a96b3;margin-top:6px}
+.levels-strip{display:flex;align-items:stretch;gap:0;margin-top:26px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.levels-strip > div{flex:1;padding:12px 16px;background:rgba(255,255,255,.04);border-right:1px solid rgba(255,255,255,.08)}
+.levels-strip > div:last-child{border-right:0}
+.levels-strip b{display:block;color:#fff;font-size:14px}
+.levels-strip span{font-size:12.5px;color:#aab4cc}
+
+/* ---------- sticky nav ---------- */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:saturate(1.6) blur(12px);border-bottom:1px solid var(--line)}
+.topnav .wrap{display:flex;align-items:center;gap:6px;height:56px;overflow-x:auto;scrollbar-width:none}
+.topnav .brand{font-weight:800;font-size:14px;margin-right:12px;white-space:nowrap;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.topnav a{color:var(--ink-2);font-size:13.5px;font-weight:600;padding:7px 12px;border-radius:999px;white-space:nowrap;text-decoration:none}
+.topnav a:hover{background:var(--bg-2)}
+.topnav a.active{background:var(--ink);color:#fff}
+
+/* ---------- sections ---------- */
+main > section.sec{padding:84px 0 88px;border-top:1px solid var(--line)}
+main > section.sec:nth-of-type(even){background:var(--surface)}
+.sec-head{margin-bottom:34px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--brand)}
+.eyebrow .n{display:inline-grid;place-items:center;min-width:30px;height:24px;padding:0 8px;border-radius:999px;background:var(--grad);color:#fff;letter-spacing:0;font-size:12px}
+.sec-head h2{margin:10px 0 10px;font-size:34px;line-height:1.2;font-weight:800;letter-spacing:-.01em}
+.sec-head .lead{margin:0;font-size:17px;color:var(--muted);max-width:900px}
+h3{font-size:20px;line-height:1.35;margin:40px 0 14px;font-weight:750}
+h4{font-size:15.5px;margin:0 0 6px;font-weight:700}
+p{margin:0 0 10px}
+.muted{color:var(--muted)} .faint{color:var(--faint)} .small{font-size:13px} .xs{font-size:12px}
+.num,.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- building blocks ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);min-width:0}
+.card.flat{box-shadow:none}
+.card.hover{transition:transform .25s ease,box-shadow .25s ease}
+.card.hover:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.card.accent{border-top:4px solid var(--c,var(--brand))}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpi .v{font-size:34px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--c,var(--ink))}
+.kpi .v small{font-size:15px;font-weight:650;color:var(--muted);margin-left:2px}
+.kpi .l{font-size:13.5px;color:var(--ink-2);margin-top:6px;font-weight:600}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:4px}
+.delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;border-radius:999px;padding:2px 8px}
+.delta.good{background:var(--ok-bg);color:var(--ok)} .delta.bad{background:var(--bad-bg);color:var(--bad)} .delta.neutral{background:var(--bg-2);color:var(--ink-2)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--c,var(--brand));background:color-mix(in srgb,var(--c,var(--brand)) 10%,#fff);border:1px solid color-mix(in srgb,var(--c,var(--brand)) 30%,#fff);white-space:nowrap}
+.pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.tag{display:inline-block;font-family:var(--mono);font-size:11.5px;border-radius:6px;padding:1px 6px;background:#f1f4fa;border:1px solid #e3e8f1;color:#334155;white-space:nowrap}
+.new{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.06em;color:#fff;background:linear-gradient(90deg,#ec4899,#f97316);border-radius:999px;padding:1px 7px;vertical-align:2px}
+.wip{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;color:#92400e;background:#fef3c7;border:1px solid #fde68a;border-radius:999px;padding:0 7px;vertical-align:2px}
+.callout{border-left:4px solid var(--c,var(--brand));background:color-mix(in srgb,var(--c,var(--brand)) 6%,#fff);border-radius:0 12px 12px 0;padding:14px 18px;color:var(--ink-2)}
+.callout b{color:var(--ink)}
+.src{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.5}
+.src code{font-size:10.5px;background:none;border:0;padding:0;color:var(--muted)}
+.figure{margin:0}
+.figure .cap{font-size:12.5px;color:var(--muted);margin-top:10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.divider{height:1px;background:var(--line);margin:28px 0}
+.list{margin:6px 0 0;padding-left:18px} .list li{margin:4px 0}
+.cols{display:flex;gap:18px;flex-wrap:wrap} .cols > *{flex:1 1 260px;min-width:0}
+
+table.t{border-collapse:separate;border-spacing:0;width:100%;font-size:13.5px}
+table.t th{background:var(--surface-2);color:var(--ink-2);font-weight:700;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t tr:last-child td{border-bottom:0}
+table.t td.r,table.t th.r{text-align:right;font-variant-numeric:tabular-nums}
+.tablecard{padding:0;overflow:hidden} .tablecard .scroll{overflow-x:auto}
+
+.bar{height:10px;background:var(--bg-2);border-radius:999px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:999px;background:var(--c,var(--brand))}
+
+/* ---------- motion ---------- */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none} html{scroll-behavior:auto}}
+
+/* ---------- tooltip ---------- */
+.dp-tip{position:fixed;z-index:1000;pointer-events:none;max-width:360px;background:#0b1220;color:#e5e9f3;font-size:12.5px;line-height:1.5;border-radius:10px;padding:9px 12px;box-shadow:0 12px 32px rgba(0,0,0,.28);opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.dp-tip.on{opacity:1;transform:none}
+.dp-tip b{color:#fff} .dp-tip .k{color:#9aa6c2}
+
+/* ---------- footer ---------- */
+footer.foot{background:#0a1024;color:#9aa6c2;font-size:12.5px;padding:34px 0 40px}
+footer.foot code{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);color:#cbd5e1}
+
+/* ---------- responsive / print ---------- */
+@media (max-width:1000px){
+  .g3,.g4,.hero-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hero h1{font-size:34px}
+  .sec-head h2{font-size:28px}
+}
+@media (max-width:680px){
+  .wrap{padding:0 16px}
+  .g2,.g3,.g4,.hero-kpis{grid-template-columns:1fr}
+  .levels-strip{flex-direction:column}
+}
+@media print{
+  .topnav{display:none}
+  .reveal{opacity:1;transform:none}
+  main > section.sec{break-inside:avoid-page;padding:40px 0}
+  .card{box-shadow:none}
+}
+/* Operator-dashboard adaptation of the requested codebase-visualization kit. */
+.hero .wrap{padding-top:28px;padding-bottom:28px}.hero h1{font-size:36px;margin:18px 0 10px}.hero .sub{font-size:16px}.hero-top{display:flex;align-items:center;justify-content:space-between;gap:16px}.connection{font-size:12px;border:1px solid #ffffff30;border-radius:99px;padding:4px 12px;color:#d3dbea}.hero-kpis{margin-top:24px;gap:12px}.hero-kpi{padding:13px 16px}.hero-kpi .v{font-size:27px}.hero-kpi .s{color:#aab5cb}.nav-meta{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}.topnav a{cursor:pointer}main>section.sec{padding:32px 0 40px;min-height:460px}main>section.sec[hidden]{display:none}.sec-head{margin-bottom:22px}.sec-head h2{font-size:27px}.sec-head .lead{font-size:14px}.btn{font:600 14px var(--font);border:1px solid var(--line-2);background:white;color:var(--ink);padding:10px 16px;border-radius:10px;cursor:pointer;min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn:hover{background:var(--bg-2)}.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}.btn.primary:hover{background:#4338ca}.btn.danger{color:var(--bad);border-color:#fecaca;background:var(--bad-bg)}.btn:disabled{opacity:.45;cursor:not-allowed}.btn:focus-visible,.field:focus-visible{outline:3px solid #a5b4fc;outline-offset:2px}.field{font:14px var(--font);padding:9px 12px;border:1px solid var(--line-2);border-radius:9px;background:white;color:var(--ink);max-width:100%}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.empty{padding:35px 24px;color:var(--muted);text-align:center;border:1px dashed var(--line-2);border-radius:12px;background:var(--surface-2)}.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:12px;background:var(--bg-2);color:var(--muted)}.status-pill.good{background:var(--ok-bg);color:var(--ok)}.status-pill.warn{background:var(--warn-bg);color:var(--warn)}.metric{font-variant-numeric:tabular-nums}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.foot .wrap{display:flex;justify-content:space-between;gap:15px}.foot{padding:20px 0;font-size:12px}#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;border-radius:12px;padding:12px 18px;box-shadow:var(--shadow-lg);max-width:min(90vw,650px);z-index:100;display:none}.chart-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}.chart-legend i{display:inline-block;width:8px;height:8px;margin-right:5px;border-radius:99px}.chart-empty{padding:45px 10px;text-align:center;color:var(--faint);font-size:13px}@media(max-width:1000px){.wrap{padding:0 24px}.hero h1{font-size:31px}.hero-kpi .v{font-size:23px}.nav-meta{display:none}.card{padding:18px}.sec-head h2{font-size:24px}}@media(max-width:650px){.hero-kpis{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:28px}.hero-top{align-items:flex-start}.wrap{padding:0 16px}.hero .kicker{font-size:10px}.connection{font-size:10px}.foot .wrap{display:block}.btn{font-size:13px}}
+</style><script>/* Shared helpers for every section. Loaded in <head>, before any section script.
+   EDIT PER PROJECT: DP.ERAS (ordered bands, e.g. versions, phases, data releases) and DP.LANES (themes). */
+(function () {
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const PALETTE = ["#64748b", "#7c3aed", "#2563eb", "#0891b2", "#059669", "#d97706", "#db2777", "#ea580c"]; // = --v0..--v7
+
+  function setAttrs(el, attrs) {
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === undefined || v === null || v === false) continue;
+      if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+      else if (k === "html") el.innerHTML = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    }
+    return el;
+  }
+  function append(el, children) {
+    for (const c of children.flat(Infinity)) {
+      if (c === undefined || c === null || c === false) continue;
+      el.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
+    }
+    return el;
+  }
+
+  const DP = {
+    PALETTE,
+    /* Ordered bands; colour i = --v<i>. Example (versions of a codebase):
+       { id: "v0", name: "V0", title: "Naive 单模型", from: "09-23", to: "09-25", color: PALETTE[0] } */
+    ERAS: [],
+    /* Theme lanes for swimlane charts, e.g. { id: "arm", name: "模型与合约", color: "#4f46e5" } */
+    LANES: [],
+    /* Day 0 of DP.day(); set to the first date the page covers. */
+    START: Date.UTC(2026, 0, 1),
+    YEAR: 2026,
+
+    era(id) { return DP.ERAS.find((e) => e.id === id); },
+    lane(id) { return DP.LANES.find((l) => l.id === id); },
+    fmt(n, digits = 0) {
+      if (n === null || n === undefined || Number.isNaN(n)) return "–";
+      return Number(n).toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    },
+    pct(a, b, digits = 1) { return b ? (100 * a / b).toFixed(digits) + "%" : "–"; },
+    /* DP.h("div", {class: "card"}, "text", child) -> HTMLElement */
+    h(tag, attrs, ...children) { return append(setAttrs(document.createElement(tag), attrs), children); },
+    /* DP.s("rect", {x: 0, y: 0}) -> SVGElement */
+    s(tag, attrs, ...children) { return append(setAttrs(document.createElementNS(SVGNS, tag), attrs), children); },
+    /* Linear scale: DP.scale([d0, d1], [r0, r1])(x); .invert(y) */
+    scale(domain, range) {
+      const [d0, d1] = domain, [r0, r1] = range;
+      const f = (x) => r0 + (x - d0) * (r1 - r0) / ((d1 - d0) || 1);
+      f.invert = (y) => d0 + (y - r0) * (d1 - d0) / ((r1 - r0) || 1);
+      return f;
+    },
+    /* "10-05" or "10-05 14:00" -> days since DP.START (fractional). */
+    day(md) {
+      const [d, t] = md.split(" ");
+      const [m, dd] = d.split("-").map(Number);
+      let ms = Date.UTC(DP.YEAR, m - 1, dd) - DP.START;
+      if (t) { const [hh, mm] = t.split(":").map(Number); ms += (hh * 60 + mm) * 60000; }
+      return ms / 86400000;
+    },
+    /* Tooltip: DP.tip(el, html | () => html) */
+    tip(el, html) {
+      const box = DP._tipBox || (DP._tipBox = document.body.appendChild(DP.h("div", { class: "dp-tip" })));
+      const move = (e) => {
+        const pad = 14, w = box.offsetWidth, hgt = box.offsetHeight;
+        let x = e.clientX + pad, y = e.clientY + pad;
+        if (x + w > innerWidth - 8) x = e.clientX - w - pad;
+        if (y + hgt > innerHeight - 8) y = e.clientY - hgt - pad;
+        box.style.left = x + "px"; box.style.top = y + "px";
+      };
+      el.addEventListener("mouseenter", (e) => { box.innerHTML = typeof html === "function" ? html() : html; box.classList.add("on"); move(e); });
+      el.addEventListener("mousemove", move);
+      el.addEventListener("mouseleave", () => box.classList.remove("on"));
+      return el;
+    },
+    ready(fn) {
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+      else fn();
+    },
+  };
+  window.DP = DP;
+
+  /* Page behaviour: reveal on scroll, count-up numbers, active nav link.
+     window.DP_STATIC = true (set by the screenshot scripts) shows everything in its final state. */
+  DP.ready(() => {
+    const finalText = (el) => DP.fmt(parseFloat(el.dataset.to), parseInt(el.dataset.digits || "0", 10));
+    if (window.DP_STATIC) {
+      document.querySelectorAll(".reveal").forEach((el) => el.classList.add("in"));
+      document.querySelectorAll(".count[data-to]").forEach((el) => { el.dataset.done = "1"; el.textContent = finalText(el); });
+    }
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) {
+        if (!en.isIntersecting) continue;
+        en.target.classList.add("in");
+        en.target.querySelectorAll(".count[data-to]").forEach(countUp);
+        if (en.target.matches(".count[data-to]")) countUp(en.target);
+        io.unobserve(en.target);
+      }
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    document.querySelectorAll(".reveal, .count[data-to]").forEach((el) => io.observe(el));
+
+    function countUp(el) {
+      if (el.dataset.done) return; el.dataset.done = "1";
+      const to = parseFloat(el.dataset.to), digits = parseInt(el.dataset.digits || "0", 10);
+      const dur = 1100, t0 = performance.now();
+      const step = (t) => {
+        const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = DP.fmt(to * e, digits);
+        if (k < 1) requestAnimationFrame(step); else el.textContent = DP.fmt(to, digits);
+      };
+      requestAnimationFrame(step);
+    }
+
+    const links = [...document.querySelectorAll(".topnav a[href^='#']")];
+    const byId = new Map(links.map((a) => [a.getAttribute("href").slice(1), a]));
+    const navIo = new IntersectionObserver((entries) => {
+      for (const en of entries) {
+        if (!en.isIntersecting) continue;
+        links.forEach((a) => a.classList.remove("active"));
+        const a = byId.get(en.target.id); if (a) a.classList.add("active");
+      }
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    document.querySelectorAll("main > section.sec[id]").forEach((s) => navIo.observe(s));
+  });
+})();
+</script><script>window.R5=(()=>{
+  const listeners=[];
+  const state={connected:false,status:null,episodes:[],exports:[],evaluations:[]};
+  const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt=(v,n=1)=>v===null||v===undefined||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('zh-CN',{maximumFractionDigits:n});
+  async function api(path,options={}){
+    const response=await fetch(path,{signal:AbortSignal.timeout(path==='/api/motion/heartbeat'?1500:options.method==='POST'?12000:3000),...options,cache:'no-store',headers:{'Content-Type':'application/json','X-R5-Panel':'1',...(options.headers||{})}});
+    const result=await response.json();if(!response.ok)throw new Error(result.error||'请求失败');return result;
+  }
+  const post=(path,payload)=>api(path,{method:'POST',body:JSON.stringify(payload)});
+  let toastTimer,busy=false,lastCollections=0;
+  function toast(message,error=false){const t=document.getElementById('toast');if(!t)return;t.textContent=message;t.style.background=error?'#991b1b':'#0b1220';t.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display='none',5000);}
+  function notify(){listeners.forEach(fn=>{try{fn(state);}catch(e){console.error(e);}});}
+  function acceptStatus(status){
+    const old=state.status;
+    if(old?.now&&status?.now&&Date.parse(status.now)<Date.parse(old.now))return false;
+    if(old?.service_instance_id===status?.service_instance_id&&Number.isFinite(old?.motion?.session_generation)&&Number.isFinite(status?.motion?.session_generation)&&status.motion.session_generation<old.motion.session_generation)return false;
+    Object.assign(state,{connected:true,status,connectionError:null});notify();return true;
+  }
+  async function refresh(force=true){
+    if(busy||location.protocol==='file:')return;busy=true;
+    try{
+      const status=await api('/api/status');acceptStatus(status);
+      if(force||Date.now()-lastCollections>4000){
+        try{const [episodes,exports,evaluations]=await Promise.all([api('/api/episodes'),api('/api/exports'),api('/api/evaluations')]);
+        Object.assign(state,{episodes:episodes.episodes,exports:exports.exports,evaluations:evaluations.evaluations});lastCollections=Date.now();state.collectionError=null;}catch(e){state.collectionError=e.message;}
+      }
+    }catch(e){state.connected=false;state.connectionError=e.message;}
+    finally{busy=false;notify();}
+  }
+  function selectTab(id){
+    const sections=[...document.querySelectorAll('main > section.sec')];
+    if(!sections.some(s=>s.id===id))id=sections[0]?.id;
+    sections.forEach(s=>s.hidden=s.id!==id);
+    document.querySelectorAll('.topnav a').forEach(a=>{a.classList.toggle('active',a.hash==='#'+id);a.setAttribute('aria-current',a.hash==='#'+id?'page':'false');});
+    if(id)history.replaceState(null,'','#'+id);
+  }
+  function chart(element,series,{unit='',height=190}={}){
+    const valid=series.map(s=>({...s,points:s.points.filter(p=>Number.isFinite(p[0])&&Number.isFinite(p[1]))}));
+    const all=valid.flatMap(s=>s.points);if(!all.length){element.innerHTML='<div class="chart-empty">暂无可绘制的数据</div>';return;}
+    const w=700,h=height,left=54,right=20,top=18,bottom=35;
+    let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;all.forEach(([x,y])=>{xmin=Math.min(xmin,x);xmax=Math.max(xmax,x);ymin=Math.min(ymin,y);ymax=Math.max(ymax,y);});
+    if(xmax===xmin)xmax=xmin+1;if(ymax===ymin){ymax+=.5;ymin-=.5;}const pad=(ymax-ymin)*.08;ymin-=pad;ymax+=pad;
+    const x=v=>left+(v-xmin)/(xmax-xmin)*(w-left-right),y=v=>h-bottom-(v-ymin)/(ymax-ymin)*(h-top-bottom);
+    let svg=`<svg role="img" aria-label="${escape(unit)}折线图" viewBox="0 0 ${w} ${h}" style="width:100%;display:block">`;
+    for(let i=0;i<4;i++){const v=ymin+(ymax-ymin)*i/3;svg+=`<line x1="${left}" y1="${y(v)}" x2="${w-right}" y2="${y(v)}" stroke="#e3e8f1"/><text x="${left-9}" y="${y(v)+4}" text-anchor="end" fill="#5f6b80" font-size="11">${fmt(v,2)}</text>`;}
+    for(let i=0;i<5;i++){const v=xmin+(xmax-xmin)*i/4;svg+=`<text x="${x(v)}" y="${h-9}" text-anchor="middle" fill="#5f6b80" font-size="11">${fmt(v,1)}</text>`;}
+    valid.forEach(s=>{svg+=`<polyline points="${s.points.map(p=>x(p[0]).toFixed(2)+','+y(p[1]).toFixed(2)).join(' ')}" stroke="${escape(s.color)}" stroke-width="2" fill="none" stroke-linejoin="round"/>`;});
+    svg+=`</svg><div class="chart-legend">${valid.map(s=>`<span><i style="background:${escape(s.color)}"></i>${escape(s.name)}</span>`).join('')}<span>${escape(unit)}</span></div>`;element.innerHTML=svg;
+  }
+  function on(fn){listeners.push(fn);fn(state);return()=>{const i=listeners.indexOf(fn);if(i>=0)listeners.splice(i,1);};}
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.topnav a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();selectTab(a.hash.slice(1));}));
+    selectTab(location.hash.slice(1)||'capture');
+    on(s=>{
+      const status=s.status;document.getElementById('connection-badge').textContent=s.connected?'机器人已连接':'等待机器人连接';
+      document.getElementById('updated-at').textContent=s.connected?new Date(status.now).toLocaleTimeString('zh-CN')+' 更新':'等待机器人连接';
+      const metric=(id,value,unit)=>document.getElementById(id).innerHTML=escape(value)+`<small>${escape(unit)}</small>`;
+      metric('hero-accepted',s.connected?fmt(status.summary.accepted,0):'—','条');
+      const cams=Object.values(status?.observation?.cameras||{});const fps=cams.length?Math.min(...cams.map(c=>c.hz||0)):null;
+      metric('hero-fps',s.connected?fmt(fps):'—','Hz');metric('hero-disk',s.connected?fmt(status.disks.data.free_bytes/2**30,0):'—','GiB');
+      document.getElementById('hero-mode').textContent=s.connected?({IDLE:'待采集',RECORDING:'录制中',REVIEW:'待回看',ERROR:'需检查'}[status.mode]||status.mode):'待连接';
+    });refresh();setInterval(()=>refresh(false),1000);
+  });
+  return{state,on,api,post,refresh,acceptStatus,toast,escape,fmt,chart,selectTab};
+})();
+</script></head><body>
+<header class="hero"><div class="wrap"><div class="hero-top"><span class="kicker"><i></i>ROBOT-5 / DATA WORKSPACE</span><span id="connection-badge" class="connection">正在连接</span></div><h1>把每次示教，变成<span class="grad">可用数据。</span></h1><p class="sub">实时采集、逐帧回看与质量检查，在同一个工作台完成。</p><div class="hero-kpis"><div class="hero-kpi"><div class="v" id="hero-accepted">—<small>条</small></div><div class="l">已接受的成功示教</div><div class="s">诊断与质量失败样本不计入</div></div>
+<div class="hero-kpi"><div class="v" id="hero-fps">—<small>Hz</small></div><div class="l">双路观测帧率</div><div class="s">实时接收值 · 目标 30 Hz</div></div>
+<div class="hero-kpi"><div class="v" id="hero-disk">—<small>GiB</small></div><div class="l">数据盘可用空间</div><div class="s">代码、录制与导出统一存储</div></div>
+<div class="hero-kpi"><div class="v" id="hero-mode">待连接</div><div class="l">采集状态</div><div class="s">录制控制不会驱动机械臂</div></div>
+</div></div></header>
+<nav class="topnav"><div class="wrap"><span class="brand">π0.5 · 工作台</span><a href="#motion">示教与回放</a>
+    <a href="#capture">实时采集</a>
+    <a href="#library">数据回看</a>
+    <a href="#evaluation">训练评测</a><span class="nav-meta" id="updated-at">等待机器人连接</span></div></nav>
+<main><!-- ===== 05-motion.html ===== -->
+<section class="sec" id="motion" data-nav="示教与回放">
+  <div class="wrap">
+    <header class="sec-head motion-heading"><div><div class="eyebrow"><span class="n">00</span> TEACH · 示教与回放</div><h2>实时观察、示教与回放采集</h2><p class="lead">双路画面与状态同步显示。所有运动由现场人员手动点击；结束示教只保存路径。</p></div><span class="status-pill warn">真机动作待现场验证</span></header>
+    <p class="motion-static-note">夹爪固定张开，数据末维保持 0；不重复确认，未测量开度。</p>
+    <div class="motion-dash">
+      <div class="motion-dash-screen" aria-label="实时画面与模型">
+        <figure class="motion-camera" data-live-camera="cam_bottom"><figcaption><div><b>俯视相机</b><small>cam_bottom</small></div><span class="status-pill" data-live-state>待连接</span></figcaption><div class="motion-camera-view"><img alt="俯视相机实时画面" hidden><div class="motion-camera-empty"><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div><div class="motion-camera-meta"><span>源帧率 <b data-live-hz>—</b> Hz</span><span>帧龄 <b data-live-age>—</b> ms</span></div></figure>
+        <figure class="motion-camera" data-live-camera="cam_wrist"><figcaption><div><b>腕部相机</b><small>cam_wrist</small></div><span class="status-pill" data-live-state>待连接</span></figcaption><div class="motion-camera-view"><img alt="腕部相机实时画面" hidden><div class="motion-camera-empty"><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div><div class="motion-camera-meta"><span>源帧率 <b data-live-hz>—</b> Hz</span><span>帧龄 <b data-live-age>—</b> ms</span></div></figure>
+        <div class="card capture-robot motion-urdf">
+          <div class="capture-robot-head"><div><h3>实时三维机械臂</h3><p>真实 URDF · 点按钮时保持可见</p></div><span class="status-pill" id="capture-robot-status">等待机器人连接</span></div>
+          <div class="capture-robot-viewport"><canvas id="capture-robot-canvas" tabindex="0" aria-label="机械臂三维模型。拖动旋转，滚轮缩放。"></canvas><div class="capture-robot-overlay" id="capture-robot-overlay">连接后读取真实 URDF 模型</div><div class="capture-robot-axis">Z 向上 · base_link_arm</div></div>
+          <div class="capture-robot-tools"><span id="capture-robot-pose">尚无有效关节姿态</span><div><button type="button" class="btn" id="capture-robot-reset">复位视角</button><button type="button" class="btn" id="capture-robot-retry" hidden>重新加载模型</button></div></div>
+          <details class="capture-robot-source"><summary>模型来源</summary><p id="capture-robot-source">等待模型加载</p><p id="capture-robot-hash"></p></details>
+        </div>
+        <div class="card motion-live-state"><div class="motion-card-head"><h3>关节</h3><span class="status-pill" id="motion-record-mode">待连接</span></div><div class="motion-live-joints"><div><span>J1</span><b data-live-joint="0">—</b><small>°</small></div><div><span>J2</span><b data-live-joint="1">—</b><small>°</small></div><div><span>J3</span><b data-live-joint="2">—</b><small>°</small></div><div><span>J4</span><b data-live-joint="3">—</b><small>°</small></div><div><span>J5</span><b data-live-joint="4">—</b><small>°</small></div><div><span>J6</span><b data-live-joint="5">—</b><small>°</small></div></div><div class="motion-live-record"><span>录制 <b id="motion-record-elapsed">—</b> 秒</span><span><b id="motion-record-frames">—</b> 帧</span></div></div>
+      </div>
+      <div class="motion-dash-side">
+    <details class="card motion-parameters" id="motion-parameters"><summary><b>操作参数</b><span id="motion-parameter-summary">展开查看拖动、复位与回放设置</span></summary><p class="motion-parameter-note" id="motion-contact-note">拖动接触模式待读取。复位 / 回放仍使用受力与力矩阈值，默认 20 N / 3 N·m。</p><p class="motion-parameter-scope" id="motion-playback-scope">MoveJ 返回与自动复位使用复位速度百分比。回放方式待读取；跟踪误差与受力 / 力矩保护仍生效。</p><div class="motion-parameter-grid"><label><span>拖动受力 <small>N</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-teach_force_n" data-parameter="teach_force_n" value="40" min="5" max="60" step="0.1" disabled><small data-parameter-bound="teach_force_n">5–60 N</small></label><label><span>复位 / 回放受力 <small>N</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-force_n" data-parameter="force_n" value="20" min="5" max="20" step="0.1" disabled><small data-parameter-bound="force_n">5–20 N</small></label><label><span>复位 / 回放力矩 <small>N·m</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-torque_nm" data-parameter="torque_nm" value="3" min="0.5" max="3" step="0.1" disabled><small data-parameter-bound="torque_nm">0.5–3 N·m</small></label><label><span>自动复位速度 <small>%</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-reset_speed_percent" data-parameter="reset_speed_percent" value="100" min="1" max="100" step="1" disabled><small data-parameter-bound="reset_speed_percent">1–100 %</small></label><label><span>回放倍率 <small>×</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-replay_speed" data-parameter="replay_speed" value="1" min="0.1" max="1" step="0.01" disabled><small data-parameter-bound="replay_speed">0.1–1 ×</small></label><label><span>回放速度上限 <small>°/s</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-max_velocity_deg_s" data-parameter="max_velocity_deg_s" value="10" min="1" max="10" step="0.1" disabled><small data-parameter-bound="max_velocity_deg_s">1–10 °/s</small></label><label><span>回放加速度 <small>°/s²</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-max_acceleration_deg_s2" data-parameter="max_acceleration_deg_s2" value="30" min="5" max="30" step="0.1" disabled><small data-parameter-bound="max_acceleration_deg_s2">5–30 °/s²</small></label><label><span>回放跟踪误差 <small>°</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-tracking_deg" data-parameter="tracking_deg" value="10" min="0.5" max="10" step="0.1" disabled><small data-parameter-bound="tracking_deg">0.5–10 °</small></label><label><span>轨迹端点容差 <small>°</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-endpoint_tolerance_deg" data-parameter="endpoint_tolerance_deg" value="2" min="0.1" max="2" step="0.1" disabled><small data-parameter-bound="endpoint_tolerance_deg">0.1–2 °</small></label><label><span>回放单步角度 <small>°</small></span><input class="field" type="number" inputmode="decimal" id="motion-param-max_step_deg" data-parameter="max_step_deg" value="1" min="0.1" max="1" step="0.1" disabled><small data-parameter-bound="max_step_deg">0.1–1 °</small></label></div><p id="motion-parameter-error" class="motion-parameter-error" role="alert" hidden></p><div class="motion-parameter-footer"><span id="motion-parameter-validation">等待机器人连接后读取已保存设置。</span><button class="btn" id="motion-save-parameters" type="button" disabled>保存操作参数</button></div></details>
+    <div class="motion-grid">
+      <aside class="card motion-session">
+        <div class="motion-card-head"><h3>手动控制会话</h3><span class="status-pill" id="motion-mode">待连接</span></div>
+        <p id="motion-reason" class="motion-reason" role="status">等待机器人连接</p>
+        <button class="btn primary" id="motion-arm" type="button" disabled>开启手动会话</button>
+        <div class="motion-owner"><span>控制权 <b id="motion-owner">—</b></span><span>续期余量 <b id="motion-lease">—</b> 秒</span></div>
+        <p class="motion-lease-note">页面可见时自动续期。切到后台或关闭页面后，5 秒未续期将触发停止；切换本工作台标签页可继续查看画面。</p>
+        <button class="btn" id="motion-disarm" type="button" disabled>关闭手动会话</button><div class="motion-recovery" id="motion-recovery" hidden><button class="btn" id="motion-recover" type="button" disabled>检查并恢复</button><p id="motion-recovery-reason" role="status"></p><p id="motion-stop-confirmed"></p><p>停止未确认时先点「停止机械臂」。控制器报警或受力仍异常时会拒绝恢复。</p><p>只恢复手动会话，不自动开启拖动、回放或复位。</p></div>
+        <div class="motion-stop-block"><button class="btn danger" id="motion-stop" type="button" disabled><span aria-hidden="true">■</span> 停止机械臂</button><p>这不是硬件急停。<strong>停止未确认时，请使用现场急停。</strong></p></div>
+      </aside>
+      <div class="motion-workflow">
+        <ol class="motion-stages">
+          <li class="card" data-motion-step="reset"><div class="motion-step-number">↶</div><div class="motion-step-content"><div class="motion-replay-heading"><h3>自定义复位零位</h3><span class="motion-speed" id="motion-reset-speed">速度待读取</span></div><p id="motion-default-pose">开启会话后读取已保存的复位目标与关节限位。</p><div class="motion-reset-inputs"><label><span>J1 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j1" data-reset-joint="0" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="0">范围待读取</small></label><label><span>J2 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j2" data-reset-joint="1" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="1">范围待读取</small></label><label><span>J3 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j3" data-reset-joint="2" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="2">范围待读取</small></label><label><span>J4 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j4" data-reset-joint="3" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="3">范围待读取</small></label><label><span>J5 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j5" data-reset-joint="4" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="4">范围待读取</small></label><label><span>J6 <small>degree</small></span><input class="field" type="number" step="0.001" inputmode="decimal" id="motion-reset-j6" data-reset-joint="5" aria-describedby="motion-reset-validation" placeholder="—" disabled><small data-reset-limit="5">范围待读取</small></label></div><p id="motion-reset-validation" class="motion-reset-validation" role="status">填入六个有限角度；保存前由后端最终检查关节范围。</p><div class="motion-buttons"><button type="button" class="btn" id="motion-set-current" disabled>当前位置设为零位</button><button type="button" class="btn" id="motion-save-pose" disabled>保存输入零位</button></div><p class="motion-reset-note">以上两项只保存配置，不移动机械臂；这里的复位零位与编码器零点、示教轨迹起点独立。</p><button type="button" class="btn primary" id="motion-reset" disabled>自动复位</button><span class="motion-small-note">点击自动复位才按设定速度移动到当前已保存目标。</span></div></li>
+          <li class="card" data-motion-step="teach"><div class="motion-step-number">1</div><div class="motion-step-content"><h3>拖动示教</h3><p>开启电流环拖动后手动引导机械臂并记录关节。结束示教只退出拖动并保存路径，不会自动回到起点。</p><label class="motion-pre-roll-label" for="motion-teach-pre-roll"><span>移动前保留（秒）</span><input class="field" id="motion-teach-pre-roll" type="number" min="0" max="10" step="0.1" value="1" inputmode="decimal" aria-describedby="motion-pre-roll-help motion-teaching-state" disabled><small>0–10 秒</small></label><p id="motion-pre-roll-help" class="motion-pre-roll-help">等待时只保留最近这段记录；关节相对起始姿态变化 ≥0.3° 后持续记录。</p><p id="motion-teaching-state" class="motion-teaching-state" role="status" hidden></p><div class="motion-buttons"><button type="button" class="btn primary" id="motion-drag-start" disabled>开启拖动示教</button><button type="button" class="btn" id="motion-drag-stop" disabled>结束示教 · 保存路径</button></div><span class="motion-small-note">结束示教只保存路径。动作前、动作后各保留 1 秒静止；回到起点请单独点 MoveJ。</span></div></li>
+          <li class="card" data-motion-step="home"><div class="motion-step-number">2</div><div class="motion-step-content"><h3>MoveJ 返回示教起点</h3><p>单独点击后，用一次 rm_movej、默认 80% 速度回到本次拖动起点。结束示教不会自动执行。</p><p class="motion-path-blocked" id="motion-home-reason" role="status" hidden></p><button type="button" class="btn" id="motion-home" disabled>MoveJ 返回示教起点</button></div></li>
+          <li class="card" data-motion-step="replay"><div class="motion-step-number">3</div><div class="motion-step-content"><div class="motion-replay-heading"><h3>回放并采集</h3><span class="motion-speed" id="motion-replay-speed">倍率待读取</span></div><p>按示教时间回放：先均匀重采样到 10 ms 并平滑，再用高跟随 rm_movej_canfd 发送。调度变慢时继续下一点，不把整段拉长，也不因跟踪误差或受力中途停止。</p><p class="motion-path-blocked" id="motion-replay-reason" role="status" hidden></p><div class="motion-buttons"><button type="button" class="btn primary" id="motion-replay" disabled>回放并采集</button><button type="button" class="btn" id="motion-library">打开数据回看 →</button></div></div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="motion-alert" id="motion-error" role="alert" hidden></div>
+    <div class="card motion-path">
+      <div class="motion-card-head"><div><h3 id="motion-path-title">当前示教路径</h3><p id="motion-path-id">尚无已保存路径</p></div><div class="motion-path-metrics"><span>原始 <b id="motion-path-frames">—</b> 帧</span><span>原始时长 <b id="motion-path-duration">—</b> 秒</span></div></div>
+      <div class="motion-path-plan"><p id="motion-path-planned">尚无回放计划</p><span id="motion-path-restored" class="status-pill" hidden>已从文件恢复</span></div>
+      <div class="motion-path-points"><div><span>起点 <small>六关节绝对角度 / °</small></span><b id="motion-path-start">等待完成示教</b></div><span class="motion-path-arrow" aria-hidden="true">⇄</span><div><span>终点 <small>六关节绝对角度 / °</small></span><b id="motion-path-end">等待完成示教</b></div></div>
+      <div class="motion-path-footer"><p id="motion-progress" role="status">结束示教不会自动回到起点。</p><button type="button" class="btn" id="motion-capture">采集页</button></div>
+    </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+#motion .motion-path-plan{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px;padding:10px 13px;border-radius:8px;background:var(--bg-2)}
+#motion .motion-path-plan p{font-size:12px;color:var(--ink-2);margin:0}
+#motion .motion-path-plan>.status-pill{flex-shrink:0}
+#motion .motion-step-content .motion-path-blocked{font-size:12px;color:#991b1b;background:var(--bad-bg);padding:9px 11px;border-radius:8px;overflow-wrap:anywhere;margin:8px 0 12px}
+@media(max-width:720px){#motion .motion-path-plan{align-items:flex-start;flex-direction:column}}
+
+#motion .motion-parameters{margin:0 0 20px;padding:17px 20px}
+#motion .motion-parameters>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none;font-size:14px}
+#motion .motion-parameters>summary b:before{content:"▸";margin-right:9px;color:var(--brand)}
+#motion .motion-parameters[open]>summary b:before{content:"▾"}
+#motion .motion-parameters>summary span{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+#motion .motion-parameters>summary span.invalid{color:var(--bad)}
+#motion .motion-parameter-scope{font-size:11px;color:var(--muted);margin:0 0 14px}
+#motion .motion-parameter-note{font-size:12px;color:#92400e;background:var(--warn-bg);padding:11px 13px;border-radius:8px;margin:14px 0}
+#motion .motion-parameter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px 16px}
+#motion .motion-parameter-grid label{min-width:0}
+#motion .motion-parameter-grid label>span{display:block;font-size:12px;font-weight:600;margin-bottom:5px}
+#motion .motion-parameter-grid label small{font-size:10px;color:var(--muted);font-weight:400}
+#motion .motion-parameter-grid input{width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+#motion .motion-parameter-grid input:disabled{color:var(--muted);background:var(--bg-2)}
+#motion .motion-parameter-grid input[aria-invalid="true"]{border-color:#f87171;background:var(--bad-bg)}
+#motion .motion-parameter-grid label>small{display:block;margin-top:4px}
+#motion .motion-parameter-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px}
+#motion .motion-parameter-footer>span{font-size:11px;color:var(--muted)}
+#motion .motion-parameter-footer .btn{font-size:12px;flex-shrink:0}
+#motion .motion-parameter-error{font-size:12px;color:#991b1b;background:var(--bad-bg);border-radius:8px;padding:10px 12px;overflow-wrap:anywhere;margin:12px 0 0}
+@media(max-width:1100px){#motion .motion-parameter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:680px){#motion .motion-parameter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#motion .motion-parameter-footer{align-items:flex-start;flex-direction:column}#motion .motion-parameters>summary{align-items:flex-start;flex-direction:column}}
+
+#motion .motion-recovery{margin-top:14px;padding:13px 12px;background:var(--warn-bg);border:1px solid #fde68a;border-radius:10px}
+#motion .motion-recovery .btn{width:100%;font-size:13px;min-height:38px;color:#92400e;border-color:#fcd34d;background:#fff}
+#motion .motion-recovery p{font-size:11px;line-height:1.75;color:#92400e;margin:7px 0 0;overflow-wrap:anywhere}
+
+#motion .motion-pre-roll-label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;margin:8px 0}
+#motion .motion-pre-roll-label>span{font-weight:600}
+#motion #motion-teach-pre-roll{width:100px;padding:7px 10px;font-size:12px;font-variant-numeric:tabular-nums}
+#motion #motion-teach-pre-roll:disabled{background:var(--bg-2);color:var(--muted)}
+#motion #motion-teach-pre-roll[aria-invalid="true"]{border-color:#f87171;background:var(--bad-bg)}
+#motion .motion-pre-roll-label small{font-size:10px;color:var(--muted)}
+#motion .motion-step-content .motion-pre-roll-help{font-size:11px;margin:6px 0 12px}
+#motion .motion-step-content .motion-teaching-state{font-size:11px;color:var(--ink-2);background:var(--bg-2);padding:8px 10px;border-radius:8px;margin:8px 0 12px}
+
+#motion .motion-reset-inputs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:12px 0 8px}
+#motion .motion-reset-inputs label{min-width:0}
+#motion .motion-reset-inputs label>span{font-size:12px;font-weight:650;display:block;margin-bottom:5px}
+#motion .motion-reset-inputs label>span small{font-size:9px;font-weight:400;color:var(--muted)}
+#motion .motion-reset-inputs input{width:100%;min-width:0;font:12px var(--mono);padding:8px 7px;font-variant-numeric:tabular-nums}
+#motion .motion-reset-inputs input:disabled{background:var(--bg-2);color:var(--muted)}
+#motion .motion-reset-inputs input[aria-invalid="true"]{border-color:#f87171;background:var(--bad-bg)}
+#motion .motion-reset-inputs label>small{display:block;font-size:9px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#motion .motion-step-content .motion-reset-validation{font-size:11px;line-height:1.6;margin:5px 0 11px;color:var(--muted)}
+#motion .motion-step-content .motion-reset-validation.invalid{color:var(--bad)}
+#motion .motion-step-content .motion-reset-note{font-size:11px;margin:10px 0 12px;color:var(--muted)}
+@media(max-width:1100px){#motion .motion-reset-inputs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+#motion .motion-static-note{font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 14px;margin-bottom:16px}
+#motion .motion-dash{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:14px;align-items:start}
+#motion .motion-dash-side{order:1;min-width:0}
+#motion .motion-dash-side .motion-grid{grid-template-columns:1fr}
+#motion .motion-dash-screen{order:2;position:sticky;top:8px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-self:start}
+#motion .motion-dash-screen .motion-urdf,#motion .motion-dash-screen .motion-live-state{grid-column:1/-1}
+#motion .motion-urdf{margin:0;padding:12px}
+#motion .motion-urdf .capture-robot-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+#motion .motion-urdf .capture-robot-head h3{margin:0;font-size:15px}
+#motion .motion-urdf .capture-robot-head p{margin:2px 0 0;color:var(--muted);font-size:11px}
+#motion .motion-urdf .capture-robot-viewport{position:relative;height:min(34vh,320px);border-radius:10px;overflow:hidden;background:#eef2f7;border:1px solid var(--line)}
+#motion .motion-urdf canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#motion .motion-urdf .capture-robot-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);text-align:center;background:#eef2f7dd;pointer-events:none}
+#motion .motion-urdf .capture-robot-overlay[hidden]{display:none}
+#motion .motion-urdf .capture-robot-axis{position:absolute;left:10px;bottom:8px;font:10px var(--mono);color:var(--muted);pointer-events:none}
+#motion .motion-urdf .capture-robot-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px}
+#motion .motion-urdf .capture-robot-tools .btn{font-size:12px;padding:6px 10px;min-height:32px}
+#motion .motion-urdf .capture-robot-source{font-size:11px;color:var(--muted);margin-top:8px}
+#motion .motion-urdf .capture-robot-source p{overflow-wrap:anywhere;font-family:var(--mono);margin:6px 0 0}
+#motion .motion-live{margin-bottom:20px}
+#motion .motion-live-cameras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#motion .motion-camera{margin:0;background:white;border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:var(--shadow)}
+#motion .motion-camera figcaption{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;gap:10px}
+#motion .motion-camera figcaption b{font-size:14px;display:block}
+#motion .motion-camera figcaption small{font:10px var(--mono);display:block;color:var(--muted);margin-top:2px}
+#motion .motion-camera-view{aspect-ratio:16/9;background:#111b2d;position:relative;overflow:hidden}
+#motion .motion-camera-view img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#motion .motion-camera-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 35%,#21334d,#111b2d 75%);color:#b8c4d8}
+#motion .motion-camera-empty b{font-size:15px;font-weight:600}
+#motion .motion-camera-empty span{font-size:11px;color:#8599b7;margin-top:6px}
+#motion .motion-camera-meta{padding:9px 16px;display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+#motion .motion-camera-meta b{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+#motion .motion-live-state{margin-top:14px;padding:16px 20px}
+#motion .motion-live-joints{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+#motion .motion-live-joints>div{padding:8px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px}
+#motion .motion-live-joints span{font:10px var(--mono);color:var(--muted);display:block;margin-bottom:3px}
+#motion .motion-live-joints b{font-size:20px;font-variant-numeric:tabular-nums;font-weight:650}
+#motion .motion-live-joints small{margin-left:3px;color:var(--muted)}
+#motion .motion-live-record{display:flex;gap:24px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:12px}
+#motion .motion-live-record b{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;margin:0 3px}
+#motion #motion-default-pose{overflow-wrap:anywhere}
+@media(max-width:980px){#motion .motion-dash{grid-template-columns:1fr}#motion .motion-dash-screen{position:static;order:-1}}
+@media(max-width:720px){#motion .motion-dash-screen{grid-template-columns:1fr}#motion .motion-live-cameras{grid-template-columns:1fr}#motion .motion-live-joints{grid-template-columns:repeat(3,minmax(0,1fr))}#motion .motion-live-record{gap:10px}}
+
+#motion [hidden]{display:none!important}
+#motion .motion-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+#motion .motion-heading>.status-pill{flex-shrink:0;margin-top:4px}
+#motion .motion-grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}
+#motion .motion-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+#motion h3{font-size:16px;margin:0;line-height:1.4}
+#motion .motion-session{padding:21px}
+#motion .motion-reason{font-size:12px;color:var(--muted);background:var(--bg-2);border-radius:9px;padding:11px 12px;overflow-wrap:anywhere;margin-bottom:16px}
+#motion .motion-confirm{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.8;color:var(--ink-2);margin:0 0 14px;cursor:pointer}
+#motion .motion-confirm input{flex-shrink:0;width:17px;height:17px;margin:3px 0 0;accent-color:var(--brand)}
+#motion .motion-session>.btn{width:100%;font-size:13px}
+#motion .motion-owner{display:flex;justify-content:space-between;gap:7px;font-size:11px;margin:15px 0 9px;color:var(--muted);font-variant-numeric:tabular-nums}
+#motion .motion-owner b{font-weight:650;color:var(--ink-2);margin-left:3px}
+#motion .motion-lease-note{font-size:11px;color:var(--muted);line-height:1.8;margin:0 0 14px}
+#motion .motion-stop-block{border-top:1px solid var(--line);margin-top:17px;padding-top:17px}
+#motion .motion-stop-block>.btn{width:100%;font-size:14px;border-color:#fca5a5;min-height:46px}
+#motion .motion-stop-block p{font-size:11px;color:var(--muted);line-height:1.8;margin:8px 0 0}
+#motion .motion-stop-block strong{color:var(--bad);font-weight:600;display:block}
+#motion .motion-stages{display:grid;gap:12px;padding:0;margin:0;list-style:none}
+#motion .motion-stages li{display:flex;gap:15px;padding:19px 21px;border-left:3px solid var(--line-2)}
+#motion .motion-stages li.active{border-left-color:var(--brand);background:#fdfdff}
+#motion .motion-step-number{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--bg-2);color:var(--brand);font-weight:750;font-size:13px;flex-shrink:0}
+#motion .motion-step-content{flex:1;min-width:0}
+#motion .motion-step-content p{font-size:12px;color:var(--muted);margin:6px 0 12px;line-height:1.8;max-width:640px}
+#motion .motion-buttons{display:flex;gap:9px;flex-wrap:wrap}
+#motion .motion-step-content .btn{font-size:12px;min-height:37px;padding:8px 13px}
+#motion .motion-small-note{font-size:10px;color:var(--muted);display:block;margin-top:9px}
+#motion .motion-replay-heading{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#motion .motion-speed{font-size:11px;padding:2px 8px;background:#eef2ff;color:var(--brand);border-radius:6px;white-space:nowrap}
+#motion .motion-alert{margin-top:16px;padding:14px 17px;background:var(--bad-bg);color:#991b1b;border:1px solid #fecaca;border-radius:12px;font-size:13px;overflow-wrap:anywhere}
+#motion .motion-alert[hidden]{display:none}
+#motion .motion-path{margin-top:18px;padding:20px 23px}
+#motion .motion-path .motion-card-head p{font:11px var(--mono);color:var(--muted);margin:5px 0 0;overflow-wrap:anywhere}
+#motion .motion-path-metrics{display:flex;gap:23px;flex-shrink:0;font-size:11px;color:var(--muted)}
+#motion .motion-path-metrics b{font-variant-numeric:tabular-nums;font-size:20px;font-weight:650;color:var(--ink);margin-right:3px}
+#motion .motion-path-points{display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);gap:12px;align-items:center}
+#motion .motion-path-points>div{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:12px 14px}
+#motion .motion-path-points>div>span{display:block;font-size:12px;color:var(--ink-2);font-weight:600;margin-bottom:6px}
+#motion .motion-path-points small{color:var(--muted);font-size:10px;font-weight:400;margin-left:8px}
+#motion .motion-path-points b{font:13px/1.7 var(--mono);color:var(--muted);overflow-wrap:anywhere}
+#motion .motion-path-arrow{text-align:center;color:var(--brand);font-size:24px}
+#motion .motion-path-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px}
+#motion .motion-path-footer p{font-size:11px;margin:0;color:var(--muted);overflow-wrap:anywhere}
+#motion .motion-path-footer .btn{font-size:12px;min-height:36px;padding:7px 12px;flex-shrink:0}
+@media(max-width:1050px){#motion .motion-grid{grid-template-columns:280px minmax(0,1fr);gap:14px}#motion .motion-stages li{padding:17px;gap:12px}#motion .motion-session{padding:17px}#motion .motion-heading{display:block}#motion .motion-heading>.status-pill{margin-top:12px}#motion .motion-path{padding:18px}}
+@media(max-width:720px){#motion .motion-grid{grid-template-columns:1fr}#motion .motion-path-points{grid-template-columns:1fr}#motion .motion-path-arrow{display:none}#motion .motion-path-footer{align-items:flex-start;flex-direction:column}#motion .motion-path .motion-card-head{align-items:flex-start;flex-direction:column}#motion .motion-heading h2{font-size:24px}}
+</style>
+<script>
+(()=>{
+  const root=document.getElementById('motion'),find=id=>root.querySelector('#motion-'+id),alert=find('error');
+  const actions={arm:find('arm'),reset:find('reset'),drag_start:find('drag-start'),drag_stop:find('drag-stop'),home:find('home'),replay:find('replay'),disarm:find('disarm'),recover:find('recover'),stop:find('stop')};
+  let clientId=null,localError='',pending=false,stopPending=false,heartbeatPending=false,current=R5.state,resetFormInitialized=false,preRollInitialized=false,recoverRequest=false,parametersInitialized=false,parametersDirty=false,parameterMessage='',heartbeatError='',heartbeatErrorSession=null;
+  try{clientId=sessionStorage.getItem('r5-motion-client-id');if(!clientId){clientId=crypto.randomUUID();sessionStorage.setItem('r5-motion-client-id',clientId);}}catch(e){localError='无法创建本页控制会话，请使用支持安全上下文和会话存储的浏览器。';}
+  const resetInputs=[...root.querySelectorAll('[data-reset-joint]')];
+  const validPose=q=>Array.isArray(q)&&q.length===6&&q.every(Number.isFinite);
+  function fillResetInputs(q){if(!validPose(q))return;resetInputs.forEach((input,i)=>input.value=String(q[i]));resetFormInitialized=true;}
+  function resetLimits(m,i){const row=m?.joint_limits_deg?.[i];if(Array.isArray(row)&&row.length===2&&row.every(Number.isFinite))return row;if(row&&Number.isFinite(row.lower)&&Number.isFinite(row.upper))return [row.lower,row.upper];return null;}
+  function validateReset(m){let error='';const joints=resetInputs.map((input,i)=>{const limit=resetLimits(m,i),value=input.value.trim()===''?NaN:Number(input.value);let invalid=!Number.isFinite(value);if(limit){input.min=String(limit[0]);input.max=String(limit[1]);root.querySelector('[data-reset-limit="'+i+'"]').textContent=R5.fmt(limit[0],3)+' … '+R5.fmt(limit[1],3)+'°';if(!invalid&&(value<limit[0]||value>limit[1])){invalid=true;if(!error)error='J'+(i+1)+' 超出允许范围 '+R5.fmt(limit[0],3)+' … '+R5.fmt(limit[1],3)+'°。';}}else{input.removeAttribute('min');input.removeAttribute('max');root.querySelector('[data-reset-limit="'+i+'"]').textContent='范围由后端检查';}if(invalid&&!error)error='请完整填写六个有限角度，空值不能保存。';input.setAttribute('aria-invalid',invalid&&input.value.trim()!==''?'true':'false');return value;});find('reset-validation').textContent=error||'输入已通过本地检查；保存前由后端最终校验关节范围。';find('reset-validation').className='motion-reset-validation'+(error?' invalid':'');return {valid:!error,joints};}
+  const preRollInput=find('teach-pre-roll');
+  const validPreRoll=v=>Number.isFinite(v)&&v>=0&&v<=10;
+  const preRollValue=()=>preRollInput.value.trim()===''?NaN:Number(preRollInput.value);
+  function savedPreRoll(status){return status?.motion?.teach_pre_roll_s??status?.teach_pre_roll_s;}
+  function syncPreRoll(status){const value=savedPreRoll(status);if(validPreRoll(value)){preRollInput.value=String(value);preRollInitialized=true;}}
+  const parameterSpec=[{"key": "teach_force_n", "label": "拖动受力", "unit": "N", "default": 40, "lower": 5, "upper": 60, "integer": false}, {"key": "force_n", "label": "复位 / 回放受力", "unit": "N", "default": 20, "lower": 5, "upper": 20, "integer": false}, {"key": "torque_nm", "label": "复位 / 回放力矩", "unit": "N·m", "default": 3, "lower": 0.5, "upper": 3, "integer": false}, {"key": "reset_speed_percent", "label": "自动复位速度", "unit": "%", "default": 100, "lower": 1, "upper": 100, "integer": true}, {"key": "replay_speed", "label": "回放倍率", "unit": "×", "default": 1, "lower": 0.1, "upper": 1, "integer": false}, {"key": "max_velocity_deg_s", "label": "回放速度上限", "unit": "°/s", "default": 10, "lower": 1, "upper": 10, "integer": false}, {"key": "max_acceleration_deg_s2", "label": "回放加速度", "unit": "°/s²", "default": 30, "lower": 5, "upper": 30, "integer": false}, {"key": "tracking_deg", "label": "回放跟踪误差", "unit": "°", "default": 10, "lower": 0.5, "upper": 10, "integer": false}, {"key": "endpoint_tolerance_deg", "label": "轨迹端点容差", "unit": "°", "default": 2, "lower": 0.1, "upper": 2, "integer": false}, {"key": "max_step_deg", "label": "回放单步角度", "unit": "°", "default": 1, "lower": 0.1, "upper": 1, "integer": false}];
+  const parameterInputs=new Map(parameterSpec.map(spec=>[spec.key,find('param-'+spec.key)]));
+  function fillParameters(m){parameterSpec.forEach(spec=>{const value=m?.parameters?.[spec.key];parameterInputs.get(spec.key).value=String(Number.isFinite(value)?value:spec.default);});parametersInitialized=true;parametersDirty=false;}
+  function parameterUnused(key,m){return key==='teach_force_n'&&m?.teach_contact_mode==='native_drag'||m?.playback_mode==='recorded_timing'&&['max_velocity_deg_s','max_acceleration_deg_s2','max_step_deg'].includes(key);}
+  function validateParameters(m){const values={};let issue='';parameterSpec.forEach(spec=>{const input=parameterInputs.get(spec.key),server=m?.parameter_bounds?.[spec.key],bounds=Array.isArray(server)&&server.length===2&&server.every(Number.isFinite)&&server[0]<=server[1]?[Math.max(spec.lower,server[0]),Math.min(spec.upper,server[1])]:[spec.lower,spec.upper],unusedParameter=parameterUnused(spec.key,m),stored=m?.parameters?.[spec.key],value=unusedParameter?(Number.isFinite(stored)&&stored>=bounds[0]&&stored<=bounds[1]?stored:spec.default):input.value.trim()===''?NaN:Number(input.value),invalid=!unusedParameter&&(!Number.isFinite(value)||value<bounds[0]||value>bounds[1]||(spec.integer&&!Number.isInteger(value)));values[spec.key]=value;input.min=String(bounds[0]);input.max=String(bounds[1]);input.setAttribute('aria-invalid',invalid?'true':'false');root.querySelector('[data-parameter-bound="'+spec.key+'"]').textContent=R5.fmt(bounds[0],2)+'–'+R5.fmt(bounds[1],2)+' '+spec.unit+(spec.integer?' · 整数':'');if(invalid&&!issue)issue=spec.label+'须为 '+R5.fmt(bounds[0],2)+'–'+R5.fmt(bounds[1],2)+' '+spec.unit+' 的'+(spec.integer?'整数':'有限数值')+'。';});return {values,issue};}
+  const heartbeatModes=new Set(['ARMED','TEACHING','HOMING','RESETTING','REPLAYING']);
+  const sessionSnapshot=m=>({owner:m?.owner,mode:m?.mode,generation:m?.session_generation});
+  const sameSession=(m,snapshot)=>!!m&&!!snapshot&&m.owner===snapshot.owner&&m.mode===snapshot.mode&&m.session_generation===snapshot.generation;
+  function clearHeartbeatError(){heartbeatError='';heartbeatErrorSession=null;}
+  const modeNames={DISARMED:'未开启',ARMED:'会话已开启',TEACHING:'拖动示教中',HOMING:'MoveJ 返回起点中',RESETTING:'复位中',REPLAYING:'回放采集中',STOPPING:'正在停止',FAULT:'故障锁定'};
+  const cameras=[...root.querySelectorAll('[data-live-camera]')].map(card=>({card,key:card.dataset.liveCamera,img:card.querySelector('img'),placeholder:card.querySelector('.motion-camera-empty'),loading:false}));
+  const fresh=data=>!!data?.available&&Number.isFinite(data.age_s)&&data.age_s<=.15;
+  function clearFrame(cam,message,detail){cam.img.hidden=true;cam.placeholder.hidden=false;cam.placeholder.querySelector('b').textContent=message;cam.placeholder.querySelector('span').textContent=detail;}
+  cameras.forEach(cam=>{cam.img.onload=()=>{cam.loading=false;if(current.connected&&fresh(current.status?.observation?.cameras?.[cam.key])){cam.img.hidden=false;cam.placeholder.hidden=true;}};cam.img.onerror=()=>{cam.loading=false;clearFrame(cam,'画面暂不可用','等待下一次画面刷新');};});
+  function update(state){
+    current=state;const observedMotion=state.status?.motion;if(heartbeatErrorSession&&(!heartbeatModes.has(observedMotion?.mode)||!sameSession(observedMotion,heartbeatErrorSession)))clearHeartbeatError();const online=state.connected,s=online?state.status:null,m=s?.motion,mode=m?.mode||'DISARMED',owned=!!clientId&&m?.owner===clientId,canUse=online&&!!m&&!!clientId,fault=mode==='FAULT',armed=mode==='ARMED',isBusy=['TEACHING','HOMING','RESETTING','REPLAYING','STOPPING'].includes(mode),path=m?.trajectory;
+    const recording=s?.mode==='RECORDING',exporting=state.exports.some(x=>x.status==='RUNNING'),otherBusy=recording||exporting;
+    if(!parametersInitialized&&online&&m)fillParameters(m);
+    const canSetParameters=canUse&&!pending&&!stopPending&&!otherBusy&&!m?.recovering&&(mode==='DISARMED'||(armed&&owned));parameterInputs.forEach((input,key)=>{const unused=parameterUnused(key,m);input.disabled=!canSetParameters||unused;input.closest('label').hidden=unused;});const nativeDrag=m?.teach_contact_mode==='native_drag';find('playback-scope').textContent='回到拖动起点需单独点击，一次 MoveJ、默认速度 80%。回放按示教时间做 10 ms 高跟随透传。';find('contact-note').textContent=nativeDrag?'拖动、MoveJ 返回和回放不再因面板的受力 / 力矩或跟踪误差停止。空闲会话仍使用受力与力矩阈值。控制器自身限位和急停保留。':'拖动接触模式由后端配置。空闲会话仍使用受力与力矩阈值。';const parameterValidation=validateParameters(m);find('save-parameters').disabled=!canSetParameters||!!parameterValidation.issue;
+    const parameterError=parameterMessage||m?.parameter_error||s?.parameter_error;find('parameter-error').textContent=parameterError||parameterValidation.issue;find('parameter-error').hidden=!find('parameter-error').textContent;find('parameter-summary').textContent=parameterError?'配置错误，展开修复：'+parameterError:parametersDirty?'有未保存的修改':'展开查看拖动、复位与回放设置';find('parameter-summary').className=parameterError?'invalid':'';find('parameter-validation').textContent=parameterValidation.issue||(!online?'等待机器人连接后读取已保存设置。':parametersDirty?'修改尚未保存；后端将在保存时最终校验。':'空闲时可保存；ARMED 会话须由本页持有。');
+    const resetPercent=m?.parameters?.reset_speed_percent??m?.reset_speed_percent,replayMultiplier=m?.parameters?.replay_speed??m?.replay_speed;find('reset-speed').textContent='速度 '+R5.fmt(resetPercent,0)+'%';actions.reset.textContent='自动复位 · '+R5.fmt(resetPercent,0)+'%';find('replay-speed').textContent=R5.fmt(replayMultiplier,2)+'×';
+    actions.arm.disabled=!canUse||pending||mode!=='DISARMED'||!m?.ready||otherBusy;
+    const newMotionBlocked=!canUse||pending||!owned||!armed||!m?.ready||otherBusy;
+    if(!resetFormInitialized&&validPose(m?.default_initial_pose))fillResetInputs(m.default_initial_pose);
+    resetInputs.forEach(input=>input.disabled=newMotionBlocked);const resetValidation=validateReset(m);find('set-current').disabled=newMotionBlocked;find('save-pose').disabled=newMotionBlocked||!resetValidation.valid;
+    if(!preRollInitialized&&online)syncPreRoll(s);
+    const preRollValid=validPreRoll(preRollValue());preRollInput.disabled=newMotionBlocked;preRollInput.setAttribute('aria-invalid',preRollValid?'false':'true');
+    find('pre-roll-help').textContent=preRollValid?'等待时只保留最近这段记录；关节相对起始姿态变化 ≥0.3° 后持续记录。':'请输入 0–10 秒之间的有限数值，空值不能启动示教。';
+    const movement=m?.teaching_movement_detected??s?.teaching_movement_detected,kept=m?.teaching_kept_frames??s?.teaching_kept_frames,activePreRoll=savedPreRoll(s);find('teaching-state').hidden=mode!=='TEACHING';find('teaching-state').textContent=(movement===true?'已检测移动，持续记录':movement===false?'等待移动，仅保留最近 '+R5.fmt(activePreRoll,1)+' 秒':'等待示教状态更新')+' · 当前保留 '+R5.fmt(kept,0)+' 帧';
+    actions.reset.disabled=newMotionBlocked||!m?.reset_ready;actions.drag_start.disabled=newMotionBlocked||!preRollValid;actions.home.disabled=newMotionBlocked||!path;actions.replay.disabled=newMotionBlocked||!path||path.replay_ready===false;
+    actions.drag_stop.disabled=!canUse||pending||!owned||mode!=='TEACHING';actions.disarm.disabled=!canUse||pending||!owned||!armed;
+    const recovering=!!m?.recovering||recoverRequest;actions.recover.disabled=!online||!clientId||!fault||!m?.recovery_available||pending||stopPending||otherBusy||recovering;find('recovery').hidden=!fault;actions.recover.textContent=recovering?'正在检查…':'检查并恢复';find('recovery-reason').textContent=m?.recovery_reason||'排除原因后检查并恢复。';find('stop-confirmed').textContent='软件停止状态：'+(m?.stop_confirmed===true?'已确认':m?.stop_confirmed===false?'未确认':'暂无确认信息');
+    actions.stop.disabled=!online||stopPending||!m||mode==='DISARMED';
+    find('mode').textContent=online?(m?modeNames[mode]||mode:'未接入'):'待连接';find('mode').className='status-pill'+(fault||mode==='STOPPING'?' warn':owned?' good':'');
+    find('owner').textContent=!online?'—':owned?'本页':m?.owner?'其他页面':'无';find('lease').textContent=R5.fmt(online?m?.lease_remaining_s:null,1);
+    find('reason').textContent=!online?'等待机器人连接':!m?'手动运动接口未接入':m.reason||(fault?'排除原因后检查并恢复':owned?'本页持有手动控制会话':m.owner?'控制会话由其他页面持有':'点击开启会话');
+    alert.textContent=m?.error||observedMotion?.error||localError||heartbeatError||(fault?'会话故障锁定，禁止新运动。排除原因后检查并恢复；停止未确认时使用现场急停。':'');alert.hidden=!alert.textContent;
+    const pose=m?.default_initial_pose;find('default-pose').textContent=Array.isArray(pose)&&pose.length===6&&pose.every(Number.isFinite)?'已保存目标（°）：'+pose.map(v=>R5.fmt(v,3)).join(' / ')+' · '+({user_current_pose:'来自当前实测关节',user_manual_pose:'来自手动输入'}[m.reset_target_source]||'配置目标')+(m.reset_reason?' · '+m.reset_reason:''):'开启会话后读取已保存的复位目标与关节限位。';
+    find('path-id').textContent=path?path.id:'尚无已保存路径';find('path-frames').textContent=R5.fmt(path?.frames,0);find('path-duration').textContent=R5.fmt(path?.duration_s,2);
+    find('path-title').textContent=path?.raw_saved===true?'原始路径已保存':'当前示教路径';find('path-restored').hidden=path?.restored!==true;const planned=path?.planned_duration_s;find('path-planned').textContent=!path?'尚无回放计划':Number.isFinite(planned)&&planned>=0?'计划回放约 '+R5.fmt(planned,2)+' 秒（原时间戳回放；端点对齐耗时另计）':path.replay_ready===false?'回放尚不能执行；原始路径保存状态见上方。':'回放计划时长待读取（独立规划与检查）';find('home-reason').hidden=true;find('home-reason').textContent='';find('replay-reason').hidden=path?.replay_ready!==false;find('replay-reason').textContent=path?.replay_reason||'回放计划未通过检查，当前不能执行回放。';
+    ['start','end'].forEach(key=>{const q=path?.[key];find('path-'+key).textContent=Array.isArray(q)&&q.length===6?q.map(v=>R5.fmt(v,1)).join(' / '):'等待完成示教';});
+    const progress=m?.progress;find('progress').textContent=typeof progress==='string'&&progress?progress:typeof progress==='number'&&Number.isFinite(progress)?'运动进度：'+R5.fmt(progress*100,0)+'%':isBusy?'正在执行，请在现场观察机械臂。':'结束示教不会自动回到起点。';
+    root.querySelectorAll('[data-motion-step]').forEach(el=>el.classList.toggle('active',({reset:'RESETTING',teach:'TEACHING',home:'HOMING',replay:'REPLAYING'}[el.dataset.motionStep])===mode));
+    const obs=s?.observation||{},rec=s?.recorder||{};find('record-mode').textContent=!online?'待连接':({IDLE:'待采集',RECORDING:'录制中',REVIEW:'待回看',ERROR:'采集需检查'}[s.mode]||s.mode||'—');find('record-frames').textContent=R5.fmt(online?rec.frames:null,0);find('record-elapsed').textContent=R5.fmt(online?rec.elapsed_s:null,1);
+    root.querySelectorAll('[data-live-joint]').forEach(el=>el.textContent=R5.fmt(online&&obs.ready?obs.state?.[Number(el.dataset.liveJoint)]:null,1));
+    cameras.forEach(cam=>{const data=online?obs.cameras?.[cam.key]:null,tag=cam.card.querySelector('[data-live-state]');tag.textContent=!online?'待连接':fresh(data)?'实时':Number.isFinite(data?.age_s)?'已过期':'无画面';tag.className='status-pill'+(online?(fresh(data)?' good':' warn'):'');cam.card.querySelector('[data-live-hz]').textContent=R5.fmt(data?.hz,1);cam.card.querySelector('[data-live-age]').textContent=R5.fmt(data?.age_s==null?null:data.age_s*1000,0);if(!online)clearFrame(cam,'等待机器人连接','连接后自动显示实时画面');else if(!fresh(data))clearFrame(cam,Number.isFinite(data?.age_s)?'画面已过期':'等待相机数据','请检查相机与 ROS 数据源');});
+  }
+  async function command(action){
+    if(actions[action].disabled)return;if(action==='stop')stopPending=true;else pending=true;if(action==='recover')recoverRequest=true;localError='';update(current);
+    const payload=action==='stop'?{}:{client_id:clientId};if(action==='drag_start')payload.pre_roll_s=preRollValue();
+    try{await R5.post('/api/motion/'+(action==='home'?'home_movej':action==='replay'?'replay_recorded':action),payload);if(action==='drag_start'){const actual=await R5.api('/api/status');syncPreRoll(actual);}await R5.refresh();R5.toast(action==='recover'?'会话已恢复，请手动重新开启拖动或复位':action==='stop'?'已提交停止请求，请核对状态与现场机械臂':'请求已提交，请核对当前状态');}
+    catch(e){localError=e.message;R5.toast(e.message,true);}finally{if(action==='stop')stopPending=false;else pending=false;if(action==='recover')recoverRequest=false;update(R5.state);}
+  }
+  async function saveResetPose(source){
+    const button=find(source==='current'?'set-current':'save-pose');if(button.disabled)return;
+    const validation=validateReset(current.status?.motion);if(source==='manual'&&!validation.valid)return;
+    const payload={client_id:clientId,source};if(source==='manual')payload.joints_deg=validation.joints;
+    pending=true;localError='';update(current);
+    try{await R5.post('/api/motion/set_reset_pose',payload);const saved=await R5.api('/api/status');fillResetInputs(saved.motion?.default_initial_pose);await R5.refresh();R5.toast('复位零位已保存；未发送机械臂运动命令');}
+    catch(e){localError=e.message;R5.toast(e.message,true);}finally{pending=false;update(R5.state);}
+  }
+  resetInputs.forEach(input=>input.addEventListener('input',()=>update(current)));
+  find('set-current').addEventListener('click',()=>saveResetPose('current'));find('save-pose').addEventListener('click',()=>saveResetPose('manual'));
+  preRollInput.addEventListener('input',()=>{preRollInitialized=true;update(current);});
+  async function saveParameters(){if(find('save-parameters').disabled)return;const validation=validateParameters(current.status?.motion);if(validation.issue)return;pending=true;parameterMessage='';localError='';update(current);try{await R5.post('/api/motion/set_parameters',{client_id:clientId,parameters:validation.values});const saved=await R5.api('/api/status');fillParameters(saved.motion);await R5.refresh();R5.toast('操作参数已保存；未启动机械臂动作');}catch(e){parameterMessage=e.message;R5.toast(e.message,true);}finally{pending=false;update(R5.state);}}
+  parameterInputs.forEach(input=>input.addEventListener('input',()=>{parametersInitialized=true;parametersDirty=true;parameterMessage='';update(current);}));find('save-parameters').addEventListener('click',saveParameters);
+  Object.entries(actions).forEach(([action,button])=>button.addEventListener('click',()=>command(action)));
+  find('capture').addEventListener('click',()=>R5.selectTab('capture'));find('library').addEventListener('click',()=>R5.selectTab('library'));
+  R5.on(update);
+  setInterval(()=>{if(!current.connected||root.hidden||document.hidden)return;cameras.forEach(cam=>{if(!fresh(current.status?.observation?.cameras?.[cam.key])||cam.loading)return;cam.loading=true;cam.img.src='/api/live/frame?camera='+encodeURIComponent(cam.key)+'&t='+Date.now();});},500);
+  setInterval(async()=>{
+    const m=current.status?.motion;
+    if(!current.connected||document.hidden||!clientId||m?.owner!==clientId||!heartbeatModes.has(m?.mode)||(heartbeatPending&&sameSession(m,heartbeatPending)))return;
+    const requestSession=sessionSnapshot(m);heartbeatPending=requestSession;
+    try{
+      await R5.post('/api/motion/heartbeat',{client_id:clientId});
+      if(sameSession(current.status?.motion,requestSession)){clearHeartbeatError();update(current);}
+    }catch(error){
+      // A response from an older owner/mode/generation must never alter the new session.
+      if(!sameSession(current.status?.motion,requestSession))return;
+      try{
+        const latest=await R5.api('/api/status');
+        if(!sameSession(current.status?.motion,requestSession))return;
+        const next=latest.motion;
+        if(Number.isFinite(next?.session_generation)&&Number.isFinite(requestSession.generation)&&next.session_generation<requestSession.generation)return;
+        if(typeof R5.acceptStatus==='function'){if(R5.acceptStatus(latest)===false)return;}
+        else update({...R5.state,connected:true,status:latest});
+        if(!heartbeatModes.has(next?.mode)||!sameSession(next,requestSession)){clearHeartbeatError();update(current);return;}
+        // acceptStatus may reject a stale response; recheck the actually displayed session.
+        if(!sameSession(current.status?.motion,requestSession))return;
+        heartbeatError='当前会话续期未确认：'+error.message+'。请检查连接与会话状态。';heartbeatErrorSession=requestSession;update(current);
+      }catch(readError){
+        if(sameSession(current.status?.motion,requestSession)&&heartbeatModes.has(current.status?.motion?.mode)){
+          heartbeatError='无法确认会话续期，状态读取失败：'+readError.message+'。请检查连接。';heartbeatErrorSession=requestSession;update(current);
+        }
+      }
+    }finally{if(heartbeatPending===requestSession)heartbeatPending=false;}
+  },1000);
+  window.addEventListener('pagehide',()=>{const m=current.status?.motion;if(clientId&&m?.owner===clientId&&heartbeatModes.has(m?.mode)){fetch('/api/motion/stop',{method:'POST',headers:{'Content-Type':'application/json','X-R5-Panel':'1'},body:'{}',keepalive:true}).catch(()=>{});}});
+})();
+</script>
+
+
+<!-- ===== 10-capture.html ===== -->
+<section class="sec" id="capture" data-nav="实时采集">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="eyebrow"><span class="n">01</span> CAPTURE · 实时采集</div>
+      <h2>确认两路画面，再开始一段示教</h2>
+      <p class="lead">被动记录相机与关节状态。夹爪按配置机械固定张开；完成后回看、检查质量，再决定是否用于训练。</p><button type="button" class="btn" id="capture-motion" style="margin-top:12px">打开示教与回放 →</button>
+    </header>
+    <ol class="capture-steps" aria-label="采集流程">
+      <li data-step="prepare" class="current"><span>1</span><div><b>准备</b><small>检查画面、关节与数据新鲜度</small></div></li>
+      <li data-step="record"><span>2</span><div><b>录制</b><small>用现场已有控制程序完成示教</small></div></li>
+      <li data-step="review"><span>3</span><div><b>回看</b><small>确认任务成功后接受样本</small></div></li>
+    </ol>
+    <div class="capture-layout">
+      <div class="capture-observation">
+        <div class="capture-cameras">
+          <figure class="capture-camera" data-camera="cam_bottom">
+            <figcaption><div><b>俯视相机</b><span>cam_bottom · topdown</span></div><span class="status-pill" data-cam-status>待连接</span></figcaption>
+            <div class="capture-view"><img alt="俯视相机实时画面" hidden><div class="capture-placeholder"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="12" width="34" height="26" rx="6"/><path d="M16 12l3-5h10l3 5"/><circle cx="24" cy="25" r="7"/></svg><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div>
+            <div class="capture-camera-meta"><span>源帧率 <b data-cam-hz>—</b> Hz</span><span>帧龄 <b data-cam-age>—</b> ms</span></div>
+          </figure>
+          <figure class="capture-camera" data-camera="cam_wrist">
+            <figcaption><div><b>腕部相机</b><span>cam_wrist · wrist</span></div><span class="status-pill" data-cam-status>待连接</span></figcaption>
+            <div class="capture-view"><img alt="腕部相机实时画面" hidden><div class="capture-placeholder"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="12" width="34" height="26" rx="6"/><path d="M16 12l3-5h10l3 5"/><circle cx="24" cy="25" r="7"/></svg><b>等待机器人连接</b><span>连接后自动显示实时画面</span></div></div>
+            <div class="capture-camera-meta"><span>源帧率 <b data-cam-hz>—</b> Hz</span><span>帧龄 <b data-cam-age>—</b> ms</span></div>
+          </figure>
+        </div>
+        <div class="capture-joints card">
+          <div class="capture-card-head"><h3>六关节实时角度</h3><span class="small muted">绝对角度 · degree</span></div>
+          <div class="capture-joint-grid" aria-label="当前六关节绝对角度">
+            <div><span>J1</span><b data-joint="0">—</b><small>°</small></div><div><span>J2</span><b data-joint="1">—</b><small>°</small></div><div><span>J3</span><b data-joint="2">—</b><small>°</small></div><div><span>J4</span><b data-joint="3">—</b><small>°</small></div><div><span>J5</span><b data-joint="4">—</b><small>°</small></div><div><span>J6</span><b data-joint="5">—</b><small>°</small></div>
+          </div>
+          <p class="src">按 joint1…joint6 排序；由 ROS 源状态转换为角度。连接中断或状态无效时显示「—」。</p>
+        </div>
+      </div>
+      <aside class="card capture-controls" aria-label="录制控制">
+        <div class="capture-card-head"><h3>当前采集</h3><span id="capture-mode" class="status-pill">待连接</span></div>
+        <p id="capture-ready" class="capture-ready" role="status">等待机器人连接</p>
+        <div class="capture-record-stats"><div><b id="capture-elapsed">—</b><small>录制秒数</small></div><div><b id="capture-frames">—</b><small>已记录帧数</small></div></div>
+        <p class="capture-episode-id" id="capture-episode">尚未开始采集</p>
+        <label class="capture-diagnostic"><input type="checkbox" id="capture-diagnostic" disabled><span><b>诊断采集</b><small>仅检查链路，不纳入训练数据</small></span></label>
+        <div class="capture-actions"><button class="btn primary" id="capture-start" type="button" disabled><span aria-hidden="true">●</span> 开始录制</button><button class="btn" id="capture-stop" type="button" disabled><span aria-hidden="true">■</span> 结束录制</button></div>
+        <p class="capture-action-note">这两个按钮只开始 / 结束数据录制。<strong>不控制机械臂，结束录制不是急停。</strong></p>
+        <p id="capture-error" class="capture-error" role="alert" hidden></p>
+        <div class="capture-review"><span id="capture-next">录制结束后，到数据页检查画面与质量。</span><button type="button" class="btn" id="capture-review">打开数据回看 <span aria-hidden="true">→</span></button></div>
+      </aside>
+    </div>
+    <p class="capture-robot-note">三维模型与两路相机一起显示在「示教与回放」仪表盘，点运动按钮时不用离开画面。</p>
+    <div class="capture-footnote"><span><i></i>画面预览约每 0.5 秒刷新；源帧率反映相机数据频率。</span><span>任务：<b>Open the toilet lid</b></span></div>
+    <details class="capture-details"><summary>采集口径与存储位置</summary><p>模型输入为两路 RGB 480 × 640 图像与 17 维状态；训练语义为 30 Hz。当前 cam_bottom 对应新机器人俯视相机，物理视角不同于旧机器人。</p><p>质量检查要求：至少 2 秒、实际源帧率 ≥ 27 Hz、无重复源帧、最大时间间隙 ≤ 100 ms。只有通过质量检查、非诊断且人工接受的样本才可导出。</p><p>样本写入数据盘 <code>/mnt/Data/pi05_open_toilet_r5/episodes</code>。实时观测来自 <code>observations.py</code>，采集器不发送机械臂动作。</p></details>
+  </div>
+</section>
+<style>
+#capture .capture-robot{margin-top:20px;padding:20px;overflow:hidden}
+#capture .capture-robot-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+#capture .capture-robot-head h3{margin:0;font-size:17px}
+#capture .capture-robot-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+#capture .capture-robot-viewport{position:relative;height:410px;border-radius:11px;overflow:hidden;background:#eef2f7;border:1px solid var(--line)}
+#capture #capture-robot-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;outline-offset:-4px}
+#capture #capture-robot-canvas:active{cursor:grabbing}
+#capture .capture-robot-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);padding:25px;text-align:center;background:#eef2f7dd;pointer-events:none}
+#capture .capture-robot-overlay[hidden]{display:none}
+#capture .capture-robot-axis{position:absolute;bottom:12px;left:14px;font:10px var(--mono);color:var(--muted);pointer-events:none}
+#capture .capture-robot-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+#capture .capture-robot-tools>span{font-size:12px;color:var(--ink-2)}
+#capture .capture-robot-tools>div{display:flex;gap:8px}
+#capture .capture-robot-tools .btn{font-size:12px;padding:7px 12px;min-height:35px}
+#capture .capture-robot-tools .btn[hidden]{display:none}
+#capture .capture-robot-note{font-size:11px;color:var(--muted);margin:10px 0 0}
+#capture .capture-robot-source{font-size:11px;color:var(--muted);margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+#capture .capture-robot-source summary{cursor:pointer}
+#capture .capture-robot-source p{overflow-wrap:anywhere;font-family:var(--mono);margin:7px 0 0}
+@media(max-width:680px){#capture .capture-robot-viewport{height:340px}#capture .capture-robot-head{align-items:flex-start;flex-direction:column}#capture .capture-robot-tools{align-items:flex-start;flex-direction:column}}
+
+#capture .capture-steps{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:0;margin:0 0 22px}
+#capture .capture-steps li{display:flex;gap:11px;align-items:center;padding:13px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--muted)}
+#capture .capture-steps li>span{display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;border-radius:50%;background:var(--bg-2);font-weight:750}
+#capture .capture-steps li b{display:block;font-size:14px;color:var(--ink-2)}
+#capture .capture-steps li small{font-size:12px;display:block;margin-top:1px}
+#capture .capture-steps li.current{border-color:#c7d2fe;background:#f0f1ff}
+#capture .capture-steps li.current>span{color:white;background:var(--brand)}
+#capture .capture-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+#capture .capture-cameras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#capture .capture-camera{margin:0;border:1px solid var(--line);border-radius:14px;background:white;overflow:hidden;box-shadow:var(--shadow)}
+#capture .capture-camera figcaption{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 14px}
+#capture .capture-camera figcaption b{font-size:14px;display:block}
+#capture .capture-camera figcaption div>span{display:block;font:10px var(--mono);color:var(--muted);margin-top:3px}
+#capture .capture-camera figcaption>.status-pill{font-size:11px;flex-shrink:0}
+#capture .capture-view{aspect-ratio:16/9;position:relative;background:#111b2d;overflow:hidden}
+#capture .capture-view img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+#capture .capture-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#b8c4d8;background:radial-gradient(ellipse at 50% 35%,#21334d,#111b2d 75%);text-align:center;padding:10px}
+#capture .capture-placeholder[hidden]{display:none}
+#capture .capture-placeholder svg{width:44px;height:44px;fill:none;stroke:#7f93b2;stroke-width:1.3;margin-bottom:12px}
+#capture .capture-placeholder b{font-size:14px;font-weight:600}
+#capture .capture-placeholder span{font-size:11px;margin-top:5px;color:#8599b7}
+#capture .capture-camera-meta{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+#capture .capture-camera-meta b{color:var(--ink-2);font-size:13px;margin-left:3px}
+#capture .capture-joints{margin-top:16px;padding:17px 18px}
+#capture .capture-card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:15px}
+#capture .capture-card-head h3{font-size:15px;margin:0}
+#capture .capture-card-head>.small{font-size:11px}
+#capture .capture-joint-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+#capture .capture-joint-grid>div{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 9px;min-width:0;white-space:nowrap}
+#capture .capture-joint-grid span{display:block;font:11px var(--mono);color:var(--muted);margin-bottom:4px}
+#capture .capture-joint-grid b{font-size:19px;line-height:1.3;font-variant-numeric:tabular-nums;font-weight:650}
+#capture .capture-joint-grid small{color:var(--muted);margin-left:3px;font-size:12px}
+#capture .capture-controls{padding:20px}
+#capture .capture-ready{font-size:12px;padding:10px 12px;border-radius:9px;background:var(--bg-2);color:var(--muted);margin-bottom:16px;overflow-wrap:anywhere}
+#capture .capture-ready.good{color:#047857;background:var(--ok-bg)}
+#capture .capture-ready.warn{color:#92400e;background:var(--warn-bg)}
+#capture .capture-record-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#capture .capture-record-stats>div+div{border-left:1px solid var(--line);padding-left:16px}
+#capture .capture-record-stats b{font-size:27px;line-height:1.2;display:block;font-variant-numeric:tabular-nums}
+#capture .capture-record-stats small{display:block;font-size:11px;color:var(--muted);margin-top:6px}
+#capture .capture-episode-id{font:10px/1.6 var(--mono);color:var(--muted);overflow-wrap:anywhere;margin:12px 0 17px}
+#capture .capture-diagnostic{display:flex;gap:9px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line);cursor:pointer}
+#capture .capture-diagnostic input{accent-color:var(--brand);width:16px;height:16px;margin:3px 0 0;flex-shrink:0}
+#capture .capture-diagnostic b{display:block;font-size:13px;font-weight:600}
+#capture .capture-diagnostic small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+#capture .capture-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:1px}
+#capture .capture-actions .btn{font-size:13px;padding:10px 8px;gap:5px}
+#capture .capture-actions .btn span{font-size:10px}
+#capture .capture-action-note{font-size:11px;line-height:1.7;color:var(--muted);margin:10px 0 16px}
+#capture .capture-action-note strong{display:block;color:var(--ink-2);font-weight:600}
+#capture .capture-error{color:var(--bad);font-size:12px;overflow-wrap:anywhere;padding:9px;background:var(--bad-bg);border-radius:8px}
+#capture .capture-review{padding-top:13px;border-top:1px solid var(--line)}
+#capture .capture-review>span{font-size:11px;color:var(--muted);display:block;line-height:1.7;margin-bottom:10px}
+#capture .capture-review .btn{width:100%;font-size:12px;justify-content:space-between;min-height:37px;padding:8px 12px}
+#capture .capture-footnote{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px;color:var(--muted);font-size:11px}
+#capture .capture-footnote i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-right:6px}
+#capture .capture-footnote b{font-weight:500}
+#capture .capture-details{font-size:12px;color:var(--muted);margin-top:15px;border-top:1px solid var(--line);padding-top:13px}
+#capture .capture-details summary{cursor:pointer;color:var(--ink-2);font-weight:600;min-height:24px}
+#capture .capture-details p{margin:8px 0 0;max-width:900px}
+@media(max-width:1100px){#capture .capture-layout{grid-template-columns:minmax(0,1fr) 280px;gap:14px}#capture .capture-joint-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#capture .capture-camera figcaption{padding:11px 10px}#capture .capture-camera figcaption div>span{font-size:9px}#capture .capture-camera-meta{padding:9px 10px;font-size:10px}#capture .capture-camera-meta b{font-size:12px}#capture .capture-controls{padding:17px}#capture .capture-cameras{gap:12px}#capture .capture-steps li{padding:11px 12px}#capture .capture-steps li small{font-size:11px}}
+@media(max-width:800px){#capture .capture-layout{grid-template-columns:1fr}#capture .capture-joint-grid{grid-template-columns:repeat(6,minmax(0,1fr))}#capture .capture-controls{max-width:none}#capture .capture-steps li small{display:none}#capture .capture-steps li{gap:7px;padding:10px}#capture .capture-placeholder b{font-size:12px}#capture .capture-placeholder span{font-size:10px}}
+@media(max-width:520px){#capture .capture-cameras{grid-template-columns:1fr}#capture .capture-joint-grid{grid-template-columns:repeat(3,minmax(0,1fr))}#capture .capture-steps{gap:7px}#capture .capture-steps li>span{width:24px;height:24px;font-size:12px}#capture .capture-steps li b{font-size:12px}}
+</style>
+<script>
+(()=>{
+  const root=document.getElementById('capture'),find=id=>root.querySelector('#'+id),start=find('capture-start'),stop=find('capture-stop'),diagnostic=find('capture-diagnostic'),error=find('capture-error');
+  let pending=false,current=R5.state,requestError='';
+  const cams=[...root.querySelectorAll('[data-camera]')].map(card=>({card,key:card.dataset.camera,img:card.querySelector('img'),placeholder:card.querySelector('.capture-placeholder'),loading:false}));
+  function clearFrame(cam,message,detail){cam.img.hidden=true;cam.placeholder.hidden=false;cam.placeholder.querySelector('b').textContent=message;cam.placeholder.querySelector('span').textContent=detail;}
+  cams.forEach(cam=>{cam.img.onload=()=>{cam.loading=false;const data=current.status?.observation?.cameras?.[cam.key];if(current.connected&&data?.available&&Number.isFinite(data.age_s)&&data.age_s<=.15){cam.img.hidden=false;cam.placeholder.hidden=true;}};cam.img.onerror=()=>{cam.loading=false;clearFrame(cam,'画面暂不可用','等待下一次画面刷新');};});
+  function update(state){
+    current=state;const online=state.connected,s=online?state.status:null,rec=s?.recorder||{},obs=s?.observation||{},recording=s?.mode==='RECORDING',busyExport=state.exports.some(x=>x.status==='RUNNING'),motionBusy=['TEACHING','HOMING','RESETTING','REPLAYING','STOPPING'].includes(s?.motion?.mode);
+    start.disabled=pending||!online||!obs.ready||recording||busyExport||motionBusy||!['IDLE','REVIEW','ERROR'].includes(s?.mode);
+    stop.disabled=pending||!online||!recording||motionBusy;diagnostic.disabled=pending||!online||recording||motionBusy;
+    if(recording)diagnostic.checked=!!rec.diagnostic;
+    find('capture-mode').textContent=!online?'待连接':({IDLE:'待采集',RECORDING:'录制中',REVIEW:'待回看',ERROR:'需检查'}[s.mode]||'未知状态');
+    find('capture-mode').className='status-pill'+(recording?' good':s?.mode==='ERROR'?' warn':'');
+    const ready=find('capture-ready');ready.className='capture-ready'+(online?(obs.ready?' good':' warn'):'');
+    ready.textContent=!online?'等待机器人连接':motionBusy?'示教或回放正在进行，请到示教与回放页管理当前任务':recording?(rec.diagnostic?'正在记录诊断样本':'正在记录示教样本'):busyExport?'数据正在导出，请完成后开始录制':obs.ready?'观测已就绪，可以开始录制':(obs.reason||'等待完整相机、关节与坐标变换');
+    find('capture-elapsed').textContent=R5.fmt(online?rec.elapsed_s:null,1);find('capture-frames').textContent=R5.fmt(online?rec.frames:null,0);
+    find('capture-episode').textContent=online&&rec.id?rec.id:'尚未开始采集';
+    root.querySelectorAll('[data-joint]').forEach(el=>el.textContent=R5.fmt(online&&Array.isArray(obs.state)?obs.state?.[Number(el.dataset.joint)]:null,1));
+    root.querySelectorAll('[data-step]').forEach(el=>el.classList.toggle('current',el.dataset.step===(recording?'record':s?.mode==='REVIEW'?'review':'prepare')));
+    find('capture-next').textContent=s?.mode==='REVIEW'?'本段已结束。请回看并检查质量，再接受或拒绝样本。':'录制结束后，到数据页检查画面与质量。';
+    error.textContent=rec.error||requestError;error.hidden=!error.textContent;
+    cams.forEach(cam=>{const data=online?obs.cameras?.[cam.key]:null,tag=cam.card.querySelector('[data-cam-status]'),fresh=!!data?.available&&Number.isFinite(data.age_s)&&data.age_s<=.15;
+      tag.textContent=!online?'待连接':fresh?'实时':Number.isFinite(data?.age_s)?'已过期':'无画面';tag.className='status-pill'+(online?(fresh?' good':' warn'):'');
+      cam.card.querySelector('[data-cam-hz]').textContent=R5.fmt(data?.hz,1);cam.card.querySelector('[data-cam-age]').textContent=R5.fmt(data?.age_s==null?null:data.age_s*1000,0);
+      if(!online)clearFrame(cam,'等待机器人连接','连接后自动显示实时画面');
+      else if(Number.isFinite(data?.age_s)&&(!data.available||!fresh))clearFrame(cam,'画面已过期','请检查相机与 ROS 数据源');
+      else if(!data?.available)clearFrame(cam,'等待相机数据','请检查相机与 ROS 数据源');
+    });
+  }
+  async function record(action){
+    if(pending||(action==='start'?start.disabled:stop.disabled))return;
+    pending=true;requestError='';update(current);
+    try{await R5.post('/api/record/'+action,action==='start'?{diagnostic:diagnostic.checked}:{});await R5.refresh();R5.toast(action==='start'?'已开始数据录制':'已结束数据录制，请回看样本');}
+    catch(e){requestError=e.message;R5.toast(e.message,true);}
+    finally{pending=false;update(R5.state);}
+  }
+  start.addEventListener('click',()=>record('start'));stop.addEventListener('click',()=>record('stop'));find('capture-review').addEventListener('click',()=>R5.selectTab('library'));
+  find('capture-motion').addEventListener('click',()=>R5.selectTab('motion'));
+  R5.on(update);
+  setInterval(()=>{if(!current.connected||root.hidden||document.hidden)return;cams.forEach(cam=>{const data=current.status?.observation?.cameras?.[cam.key];if(!data?.available||!Number.isFinite(data.age_s)||data.age_s>.15||cam.loading)return;cam.loading=true;cam.img.src='/api/live/frame?camera='+encodeURIComponent(cam.key)+'&t='+Date.now();});},500);
+})();
+</script>
+<script>
+(()=>{
+  const section=document.getElementById('capture'),el=id=>document.getElementById('capture-robot-'+id),canvas=el('canvas'),overlay=el('overlay'),badge=el('status');
+  let state=R5.state,model=null,drawables=[],jointTree=[],lastQ=null,lastPoseTime=null,loading=false,failed=false,dirty=true,fitted=false,totalTriangles=0,modelError='',lastSignature='';
+  let yaw=-.8,pitch=.42,distance=2,center=[0,0,.35],radius=.6,drag=null;
+  const gl=canvas.getContext('webgl',{antialias:true,alpha:false,preserveDrawingBuffer:true});
+  const ident=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+  const mul=(a,b)=>{const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o;};
+  const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],norm=a=>{const n=Math.hypot(...a)||1;return a.map(x=>x/n);};
+  const translate=v=>{const m=ident();m[12]=v[0];m[13]=v[1];m[14]=v[2];return m;};
+  const rotate=(axis,t)=>{const [x,y,z]=norm(axis),c=Math.cos(t),s=Math.sin(t),v=1-c;return new Float32Array([x*x*v+c,y*x*v+z*s,z*x*v-y*s,0,x*y*v-z*s,y*y*v+c,z*y*v+x*s,0,x*z*v+y*s,y*z*v-x*s,z*z*v+c,0,0,0,0,1]);};
+  const vec=(v,fallback)=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite)?v:fallback;
+  function origin(xyz,rpy){const [r,p,y]=vec(rpy,[0,0,0]);return mul(translate(vec(xyz,[0,0,0])),mul(rotate([0,0,1],y),mul(rotate([0,1,0],p),rotate([1,0,0],r))));}
+  function point(m,p){return [m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12],m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14]];}
+  function normalMatrix(m){const a=[m[0],m[1],m[2]],b=[m[4],m[5],m[6]],c=[m[8],m[9],m[10]],bc=cross(b,c),det=dot(a,bc)||1;return new Float32Array([...bc,...cross(c,a),...cross(a,b)].map(x=>x/det));}
+  function transforms(){const result=new Map([[model.root,ident()]]);for(const j of jointTree){let q=0;if(j.index>=0)q=(lastQ?.[j.index]||0)*Math.PI/180;else if(j.type==='prismatic')q=Number.isFinite(j.upper)?j.upper:0;const movement=j.type==='revolute'||j.type==='continuous'?rotate(j.axis,q):j.type==='prismatic'?translate(j.axis.map(x=>x*q)):ident();result.set(j.child,mul(result.get(j.parent),mul(j.origin,movement)));}return result;}
+  function fit(){if(!model||!lastQ)return;const poses=transforms(),lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(const d of drawables){const m=mul(poses.get(d.link),d.local);for(let i=0;i<8;i++){const p=point(m,[d.bounds[(i&1)?1:0][0],d.bounds[(i&2)?1:0][1],d.bounds[(i&4)?1:0][2]]);for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],p[k]);hi[k]=Math.max(hi[k],p[k]);}}}if(lo.every(Number.isFinite)){center=lo.map((x,i)=>(x+hi[i])/2);radius=Math.max(.1,Math.hypot(...hi.map((x,i)=>x-lo[i]))/2);distance=radius*3.1;}yaw=-.8;pitch=.42;fitted=true;dirty=true;}
+  let program,attrP,attrN,uModel,uVP,uNormal,uColor;
+  function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+  try{if(!gl)throw Error('浏览器未提供 WebGL，无法显示真实网格。');program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,'attribute vec3 p;attribute vec3 n;uniform mat4 model;uniform mat4 vp;uniform mat3 nm;varying vec3 normal;void main(){normal=nm*n;gl_Position=vp*model*vec4(p,1.0);}'));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,'precision mediump float;varying vec3 normal;uniform vec4 color;void main(){vec3 n=normalize(normal);float light=.35+.55*abs(dot(n,normalize(vec3(.5,-.6,1.0))))+.10*abs(n.z);gl_FragColor=vec4(color.rgb*light,1.0);}'));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));attrP=gl.getAttribLocation(program,'p');attrN=gl.getAttribLocation(program,'n');uModel=gl.getUniformLocation(program,'model');uVP=gl.getUniformLocation(program,'vp');uNormal=gl.getUniformLocation(program,'nm');uColor=gl.getUniformLocation(program,'color');gl.enable(gl.DEPTH_TEST);gl.clearColor(.933,.949,.969,1);}catch(e){failed=true;modelError=e.message;overlay.textContent=modelError;badge.textContent='三维显示不可用';}
+  function install(data){
+    if(!data||data.root!=='base_link_arm'||!Array.isArray(data.links)||!Array.isArray(data.joints))throw Error('模型 JSON 缺少 base_link_arm 根或 links/joints。');
+    const links=new Map(data.links.map(l=>[l.name,l])),seen=new Set([data.root]),queue=[data.root],tree=[];
+    if(!links.has(data.root))throw Error('模型缺少根 link。');
+    while(queue.length){const parent=queue.shift();for(const j of data.joints.filter(j=>j.parent===parent)){if(seen.has(j.child))throw Error('URDF 子树存在循环或重复父节点。');if(!links.has(j.child))throw Error('关节引用了不存在的 link。');seen.add(j.child);queue.push(j.child);const match=/^joint_?([1-6])$/.exec(j.name);tree.push({...j,index:match?Number(match[1])-1:-1,origin:origin(j.xyz,j.rpy),axis:norm(vec(j.axis,[1,0,0]))});}}
+    const indices=new Set(tree.filter(j=>j.index>=0).map(j=>j.index));if(indices.size!==6)throw Error('六轴 joint1…joint6 映射不完整，停止姿态显示以免错配。');
+    const next=[];let count=0;for(const name of seen)for(const visual of links.get(name).visuals||[]){const v=visual.vertices;if(!Array.isArray(v)||!v.length)continue;if(v.length%9)throw Error('网格三角形顶点数不合法。');const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity],buffer=new Float32Array(v.length*2);for(let i=0;i<v.length;i+=9){const a=v.slice(i,i+3),b=v.slice(i+3,i+6),c=v.slice(i+6,i+9);if(![...a,...b,...c].every(Number.isFinite))throw Error('网格含非有限顶点。');const n=norm(cross(b.map((x,k)=>x-a[k]),c.map((x,k)=>x-a[k])));for(let k=0;k<3;k++){const off=(i/3+k)*6;for(let d=0;d<3;d++){const value=v[i+k*3+d];buffer[off+d]=value;buffer[off+d+3]=n[d];lo[d]=Math.min(lo[d],value);hi[d]=Math.max(hi[d],value);}}}const gpu=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,gpu);gl.bufferData(gl.ARRAY_BUFFER,buffer,gl.STATIC_DRAW);const scale=vec(visual.scale,[1,1,1]),sm=ident();sm[0]=scale[0];sm[5]=scale[1];sm[10]=scale[2];next.push({link:name,buffer:gpu,count:v.length/3,local:mul(origin(visual.xyz,visual.rpy),sm),bounds:[lo,hi],color:Array.isArray(visual.color)&&visual.color.length===4?visual.color:[.48,.57,.7,1]});count+=v.length/9;}
+    if(!count)throw Error('根子树中没有可显示的三角网格。');drawables.forEach(d=>gl.deleteBuffer(d.buffer));drawables=next;jointTree=tree;model={root:data.root};totalTriangles=count;el('source').textContent=(data.source||'未提供路径')+' · '+seen.size+' 个 link · '+R5.fmt(count,0)+' 个三角形';el('hash').textContent='SHA-256: '+(data.sha256||'未提供');fitted=false;dirty=true;
+  }
+  async function load(){if(loading||model||!gl||!program||!state.connected||canvas.closest('.sec').hidden||document.hidden)return;loading=true;failed=false;modelError='';badge.textContent='加载真实 URDF';overlay.hidden=false;overlay.textContent='正在加载真实 URDF 网格…';el('retry').hidden=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);try{const response=await fetch('/api/robot-model',{cache:'no-store',headers:{'X-R5-Panel':'1'},signal:controller.signal});if(!response.ok)throw Error('模型读取失败：HTTP '+response.status);install(await response.json());}catch(e){failed=true;modelError=e.name==='AbortError'?'模型加载超时，请重试。':e.message;el('retry').hidden=false;}finally{clearTimeout(timer);loading=false;update(state);}}
+  function update(s){state=s;const obs=s.status?.observation||{},q=obs.state?.slice(0,6),cameraFresh=['cam_bottom','cam_wrist'].every(k=>obs.cameras?.[k]?.available&&Number.isFinite(obs.cameras[k].age_s)&&obs.cameras[k].age_s<=.15),fresh=s.connected&&obs.ready&&cameraFresh&&Array.isArray(q)&&q.length===6&&q.every(Number.isFinite),lib=document.getElementById('library');
+    if(!lib||lib.hidden)libraryPose=false;
+    if(fresh&&!libraryPose){const sig=q.join(',');if(sig!==lastSignature){lastQ=q;lastSignature=sig;dirty=true;}lastPoseTime=new Date().toLocaleTimeString('zh-CN');}
+    if(failed){badge.textContent='模型加载失败';badge.className='status-pill warn';overlay.hidden=false;overlay.textContent=modelError;}
+    else if(!loading){badge.textContent=!model?(s.connected?'等待加载模型':'等待机器人连接'):fresh?'实时关节姿态':lastQ?'最后姿态 · 数据已过期':'等待有效关节';badge.className='status-pill'+(model?(fresh?' good':' warn'):'');overlay.hidden=!!(model&&lastQ);overlay.textContent=model?'模型已加载，等待有效关节姿态':'连接后读取真实 URDF 模型';}
+    el('pose').textContent=lastQ?(fresh?'观测更新 ':'保留最后姿态 ')+lastPoseTime+' · 夹爪为配置示意':'尚无有效关节姿态 · 夹爪为配置示意';if(model&&lastQ&&!fitted)fit();if(!model&&!loading&&!failed)load();
+  }
+  function render(){if(!gl||!program||!model||!lastQ||canvas.closest('.sec').hidden||document.hidden||!dirty)return;const rect=canvas.getBoundingClientRect(),ratio=Math.min(window.devicePixelRatio||1,1.5),w=Math.round(rect.width*ratio),h=Math.round(rect.height*ratio);if(!w||!h)return;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}gl.viewport(0,0,w,h);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);const eye=[center[0]+distance*Math.cos(pitch)*Math.cos(yaw),center[1]+distance*Math.cos(pitch)*Math.sin(yaw),center[2]+distance*Math.sin(pitch)],z=norm(eye.map((v,i)=>v-center[i])),x=norm(cross([0,0,1],z)),y=cross(z,x),view=new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]),f=1/Math.tan(Math.PI/8),near=Math.max(.001,radius*.005),far=distance+radius*20,proj=new Float32Array([f/(w/h),0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0]);gl.uniformMatrix4fv(uVP,false,mul(proj,view));gl.enableVertexAttribArray(attrP);gl.enableVertexAttribArray(attrN);const poses=transforms();for(const d of drawables){const m=mul(poses.get(d.link),d.local);gl.bindBuffer(gl.ARRAY_BUFFER,d.buffer);gl.vertexAttribPointer(attrP,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(attrN,3,gl.FLOAT,false,24,12);gl.uniformMatrix4fv(uModel,false,m);gl.uniformMatrix3fv(uNormal,false,normalMatrix(m));gl.uniform4fv(uColor,d.color);gl.drawArrays(gl.TRIANGLES,0,d.count);}dirty=false;}
+  canvas.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!drag)return;yaw-=(e.clientX-drag[0])*.007;pitch=Math.max(-1.4,Math.min(1.4,pitch+(e.clientY-drag[1])*.007));drag=[e.clientX,e.clientY];dirty=true;});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);canvas.addEventListener('wheel',e=>{e.preventDefault();distance=Math.max(radius*.25,Math.min(radius*15,distance*Math.exp(e.deltaY*.001)));dirty=true;},{passive:false});canvas.addEventListener('keydown',e=>{let handled=true;if(e.key==='ArrowLeft')yaw-=.1;else if(e.key==='ArrowRight')yaw+=.1;else if(e.key==='ArrowUp')pitch=Math.min(1.4,pitch+.1);else if(e.key==='ArrowDown')pitch=Math.max(-1.4,pitch-.1);else if(e.key==='+'||e.key==='=')distance=Math.max(radius*.25,distance*.9);else if(e.key==='-')distance=Math.min(radius*15,distance/ .9);else if(e.key.toLowerCase()==='r')fit();else handled=false;if(handled){e.preventDefault();dirty=true;}});
+  let libraryPose=false;
+  function placeCanvas(){const lib=document.getElementById('library'),host=document.getElementById('lib-robot-host'),home=document.querySelector('#motion .capture-robot-viewport');const target=lib&&!lib.hidden&&host?host:home;if(target&&canvas.parentElement!==target){target.appendChild(canvas);dirty=true;}}
+  R5.setRobotPose=function(q){if(!Array.isArray(q)||q.length<6||!q.every(Number.isFinite))return;libraryPose=true;lastQ=q.slice(0,6);lastSignature=lastQ.join(',');dirty=true;render();};
+  el('reset').addEventListener('click',fit);el('retry').addEventListener('click',()=>{failed=false;load();});new ResizeObserver(()=>{dirty=true;}).observe(canvas);new MutationObserver(()=>{placeCanvas();dirty=true;update(state);}).observe(section,{attributes:true,attributeFilter:['hidden']});for(const id of ['motion','library']){const sec=document.getElementById(id);if(sec)new MutationObserver(()=>{if(id==='motion'&&!sec.hidden)libraryPose=false;placeCanvas();dirty=true;update(state);}).observe(sec,{attributes:true,attributeFilter:['hidden']});}document.addEventListener('visibilitychange',()=>{dirty=true;update(state);});canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();failed=true;modelError='WebGL 上下文丢失，请刷新页面重新加载。';update(state);});(R5.subscribe||R5.on)(update);setInterval(()=>{placeCanvas();render();},100);placeCanvas();
+})();
+</script>
+
+
+<!-- ===== 20-library.html ===== -->
+<section class="sec" id="library" data-nav="数据回看">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="eyebrow"><span class="n">02</span> 数据回看与导出</div>
+      <h2>逐帧检查，把成功示教留给训练</h2>
+      <p class="lead">先检查画面、关节与时间间隙，再人工确认任务成功。诊断片段与质量失败样本不进入训练集。</p>
+    </header>
+    <div class="lib-layout">
+      <aside class="card lib-browser" aria-label="采集样本">
+        <div class="lib-cardhead"><h3>采集样本</h3><span id="lib-count" class="status-pill">— 条</span></div>
+        <label for="lib-filter" class="small">样本状态</label>
+        <select id="lib-filter" class="field">
+          <option value="ALL">全部样本</option><option value="PENDING">待审核</option><option value="ACCEPTED">已接受</option><option value="DIAGNOSTIC">诊断片段</option><option value="FAILED">质量失败</option><option value="REJECTED">已拒绝</option><option value="RECORDING">录制中</option>
+        </select>
+        <div id="lib-list" class="lib-list" aria-label="选择回看的样本"><div class="empty">等待机器人连接</div></div>
+        <p class="src">列表帧率来自源时间戳。标称 30 Hz 不代表实际采样率。</p>
+      </aside>
+      <div class="lib-main">
+        <article class="card lib-review" aria-labelledby="lib-title">
+          <div class="lib-cardhead"><div><h3 id="lib-title">选择一条样本</h3><p id="lib-date" class="small muted">连接后可回看真实采集帧</p></div><span id="lib-status" class="status-pill">未选择</span></div>
+          <div id="lib-notice" class="lib-notice" role="status">等待机器人连接</div>
+          <div class="lib-stats">
+            <div><span>原始帧数</span><strong id="lib-frames">—</strong></div>
+            <div><span>实际源采样率</span><strong><span id="lib-hz">—</span><small> Hz</small></strong></div>
+            <div><span>最大时间间隙</span><strong><span id="lib-gap">—</span><small> ms</small></strong></div>
+          </div>
+          <div class="lib-stage">
+          <div class="lib-cameras">
+            <figure><figcaption><b>俯视相机</b><span>cam_bottom</span></figcaption><div class="lib-frame"><img id="lib-bottom" alt="所选样本的俯视相机帧" hidden><span id="lib-bottom-empty">选择样本后显示画面</span></div></figure>
+            <figure><figcaption><b>腕部相机</b><span>cam_wrist</span></figcaption><div class="lib-frame"><img id="lib-wrist" alt="所选样本的腕部相机帧" hidden><span id="lib-wrist-empty">选择样本后显示画面</span></div></figure>
+          </div>
+          <div class="card lib-urdf"><div class="lib-cardhead"><h3>回放姿态</h3><span id="lib-robot-note" class="small muted">随当前帧</span></div><div id="lib-robot-host" class="lib-robot-host"></div></div>
+          </div>
+          <div class="lib-scrub">
+            <div class="lib-cardhead"><label for="lib-scrubber">连续回看</label><output id="lib-position" for="lib-scrubber">— / — 帧</output></div>
+            <input id="lib-scrubber" type="range" min="0" max="0" value="0" disabled aria-label="选择原始帧">
+            <div class="toolbar"><button id="lib-play" class="btn primary" type="button" disabled>播放</button><button id="lib-prev" class="btn" disabled aria-label="上一帧">← 上一帧</button><button id="lib-next" class="btn" disabled aria-label="下一帧">下一帧 →</button><span class="small muted" id="lib-play-hint">先缓存整段画面，再按采集帧率播放。关节曲线上的竖线对应当前帧。</span></div>
+          </div>
+          <details class="lib-charts" open><summary>关节与采样质量</summary>
+            <h4>六关节绝对角度 <span class="muted">· degree</span></h4><div class="lib-chart-box"><div id="lib-joint-chart" aria-label="六关节绝对角度曲线"><div class="chart-empty">选择样本后显示真实关节曲线</div></div><div id="lib-joint-cursor" hidden></div></div>
+            <h4>相邻源帧时间间隙 <span class="muted">· ms</span></h4><div id="lib-gap-chart" aria-label="帧间隙曲线"><div class="chart-empty">选择样本后显示时间间隙</div></div>
+            <p class="src">横轴：采集时间 / 秒。曲线最多显示 1,000 个点；逐帧回看使用原始全部帧。时间间隙门限 100 ms。</p>
+          </details>
+          <div class="lib-quality"><h4>质量检查</h4><div id="lib-quality" class="small muted">尚未加载质量报告</div></div>
+          <div class="lib-review-actions">
+            <label for="lib-note" class="small">审核备注 <span class="muted">（可选）</span></label><textarea id="lib-note" class="field" rows="2" maxlength="500" placeholder="例如：完整打开盖子，双路画面无遮挡" disabled></textarea>
+            <div class="toolbar"><button id="lib-accept" class="btn primary" disabled>接受为成功示教</button><button id="lib-reject" class="btn danger" disabled>拒绝此样本</button></div>
+            <p id="lib-review-hint" class="src">质量通过的正式样本会自动接受。仍可手动拒绝；拒绝只改变标记，保留原始数据。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+    <article class="card lib-export" aria-labelledby="lib-export-heading">
+      <div class="lib-export-top"><div><div class="eyebrow lib-export-kicker">TRAINING DATA</div><h3 id="lib-export-heading">导出可训练数据集</h3><p class="small muted">仅包含「已接受 + 质量 PASS + 非诊断」样本，按真实时钟重采样到 30 Hz。</p></div><div class="lib-export-control"><label for="lib-export-name" class="sr-only">数据集名称，可选</label><input id="lib-export-name" class="field" maxlength="80" placeholder="数据集名称（可选）"><button id="lib-export" class="btn primary" disabled>创建导出任务</button></div></div>
+      <p id="lib-export-hint" class="src">等待机器人连接</p>
+      <div id="lib-exports" class="empty">尚无导出任务</div>
+      <details class="lib-contract"><summary>查看训练格式</summary><p class="small muted">π0.5 · 17 维状态 · 7 维绝对关节角动作 · 16 步预测。双路 RGB 图像等比例补边为 480 × 640。动作取下一帧关节角，末帧保持；夹爪固定为 0。新机器人数据需重算归一化。</p></details>
+    </article>
+  </div>
+</section>
+<style>
+#library .lib-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px;align-items:start}
+#library .lib-cardhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+#library h3{font-size:18px;margin:0 0 4px}#library .lib-cardhead p{margin:0}#library .lib-browser{padding:20px 16px}#library .lib-browser select{width:100%;margin:6px 0 14px}#library .lib-list{display:grid;gap:8px;max-height:735px;overflow:auto}#library .lib-item{width:100%;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px;font:inherit;color:var(--ink)}#library .lib-item:hover{border-color:#67b8cb;background:#f0faff}#library .lib-item.selected{border-color:#0891b2;background:#ecfeff;box-shadow:inset 3px 0 #0891b2}#library .lib-item:focus-visible{outline:3px solid #a5b4fc;outline-offset:1px}#library .lib-item-id{display:block;font-size:12px;font-family:var(--mono);overflow-wrap:anywhere;font-weight:650;margin-bottom:8px}#library .lib-item-bottom{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;font-size:11px;color:var(--muted)}#library .lib-item-date{display:block;margin-top:6px;font-size:11px;color:var(--muted)}#library .lib-item:disabled{cursor:not-allowed;opacity:.65}#library .lib-list .empty{padding:42px 12px;font-size:13px}#library .lib-review{padding:24px}#library #lib-title{overflow-wrap:anywhere;font-size:17px}#library .lib-notice{border:1px solid #cceaf0;background:#f2fbfd;border-radius:9px;padding:9px 12px;font-size:12px;color:#155e75;margin-bottom:16px}#library .lib-notice.warn{background:var(--warn-bg);border-color:#f5dfaf;color:#92400e}#library .lib-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}#library .lib-stats>div{border-left:2px solid #d8edf1;padding-left:12px}#library .lib-stats>div>span{display:block;font-size:12px;color:var(--muted)}#library .lib-stats strong{font-size:23px;font-weight:750;line-height:1.4;font-variant-numeric:tabular-nums}#library .lib-stats small{font-size:12px;color:var(--muted);font-weight:400}#library .lib-stage{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(220px,.72fr);gap:12px;align-items:stretch}#library .lib-cameras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#library .lib-urdf{margin:0;padding:12px;display:flex;flex-direction:column;min-width:0}#library .lib-urdf h3{font-size:15px}#library .lib-robot-host{position:relative;flex:1;min-height:240px;border-radius:10px;overflow:hidden;background:#eef2f7;border:1px solid var(--line)}#library .lib-robot-host canvas{display:block;width:100%;height:100%}#library .lib-chart-box{position:relative}#library #lib-joint-cursor{position:absolute;top:0;width:0;border-left:2px solid #0b1220;pointer-events:none;z-index:2}#library #lib-joint-cursor::before{content:"";position:absolute;left:-5px;top:0;width:8px;height:8px;border-radius:50%;background:#0b1220}#library figure{margin:0;min-width:0}#library figcaption{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:7px}#library figcaption span{font-size:11px;color:var(--muted);font-family:var(--mono)}#library .lib-frame{aspect-ratio:16/9;background:#111c2c;border:1px solid #23334b;border-radius:10px;display:grid;place-items:center;position:relative;overflow:hidden;color:#a5b4cb;font-size:12px;text-align:center}#library .lib-frame img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}#library [hidden]{display:none!important}#library .lib-scrub{padding:18px 0;border-bottom:1px solid var(--line)}#library .lib-scrub .lib-cardhead{font-size:12px;margin-bottom:6px}#library .lib-scrub output{color:var(--muted);font-variant-numeric:tabular-nums}#library .lib-scrub input{width:100%;accent-color:#0891b2;cursor:pointer;margin:0 0 12px}#library .lib-scrub .btn{padding:7px 12px;min-height:34px;font-size:12px}#library .lib-scrub .small{font-size:11px}#library summary{cursor:pointer;font-size:13px;font-weight:650;padding:14px 0;color:var(--ink-2)}#library .lib-charts h4{font-size:12px;margin:12px 0 0}#library .lib-charts .chart-empty{padding:22px 10px}#library .lib-quality{padding:15px 0;border-top:1px solid var(--line)}#library .lib-quality h4{font-size:13px}#library .lib-quality ul{padding-left:20px;margin:6px 0;color:var(--bad);overflow-wrap:anywhere}#library .lib-review-actions{border-top:1px solid var(--line);padding-top:14px}#library textarea{display:block;width:100%;margin:6px 0 12px;resize:vertical}#library .lib-review-actions .src{margin:10px 0 0}#library .lib-export{margin-top:20px;padding:24px}#library .lib-export-top{display:flex;justify-content:space-between;gap:20px;align-items:center}#library .lib-export-kicker{font-size:10px;color:#0891b2;margin-bottom:6px;letter-spacing:.12em}#library .lib-export-control{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}#library .lib-export-control input{width:195px}#library .lib-export .empty{padding:22px}#library .lib-export-job{display:grid;grid-template-columns:minmax(0,1.4fr) auto minmax(0,1fr);gap:14px;align-items:start;padding:13px 14px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;margin-top:8px;font-size:12px}#library .lib-export-job strong{overflow-wrap:anywhere}#library .lib-export-job small{display:block;color:var(--muted);margin-top:4px}#library .lib-export-path{overflow-wrap:anywhere;color:var(--muted);font-size:11px}#library .lib-export-error{color:var(--bad);overflow-wrap:anywhere;grid-column:1/-1}#library .lib-contract summary{padding-bottom:4px}#library .lib-contract p{margin-top:8px}#library .lib-bad{color:var(--bad);background:var(--bad-bg)}
+@media(max-width:1100px){#library .lib-stage{grid-template-columns:1fr}#library .lib-layout{grid-template-columns:220px minmax(0,1fr);gap:16px}#library .lib-review{padding:18px}#library .lib-export-top{align-items:flex-start}#library .lib-export-control{max-width:220px}#library .lib-export-control input{width:100%}#library .lib-export-control button{width:100%}#library .lib-stats strong{font-size:20px}#library .lib-frame{font-size:11px}#library figcaption{flex-wrap:wrap;gap:0 8px}}
+@media(max-width:760px){#library .lib-layout{grid-template-columns:1fr}#library .lib-list{max-height:260px;grid-template-columns:repeat(2,minmax(0,1fr))}#library .lib-list .empty{grid-column:1/-1}#library .lib-export-top{display:block}#library .lib-export-control{max-width:none;justify-content:flex-start;margin-top:14px}#library .lib-export-control input{width:auto;flex:1}#library .lib-export-control button{width:auto}#library .lib-export-job{grid-template-columns:1fr auto}#library .lib-export-path{grid-column:1/-1}}
+@media(max-width:450px){#library .lib-cameras{grid-template-columns:1fr}#library .lib-stats{gap:6px}#library .lib-stats>div{padding-left:7px}#library .lib-stats>div>span{font-size:10px}#library .lib-stats strong{font-size:18px}#library .lib-review-actions .btn{width:100%}}
+</style>
+<script>
+(()=>{
+ const root=document.getElementById('library'),$=id=>document.getElementById('lib-'+id),R=window.R5;
+ if(!root||!R)return;
+ const labels={ACCEPTED:'已接受',PENDING:'待审核',REJECTED:'已拒绝',DIAGNOSTIC:'诊断片段',FAILED:'质量失败',RECORDING:'录制中',RUNNING:'导出中',DONE:'已完成'};
+ let state=R.state,selected=null,detail=null,request=0,busy=false,exporting=false,caching=false,lastList='',lastExports='',signature='',frameTimer,playTimer=null,playing=false,lastConnected=false,frameSerial={bottom:0,wrist:0},warmToken=0,blobs=new Map();
+ const esc=R.escape,fmt=R.fmt;
+ const statusOf=e=>e.diagnostic?'DIAGNOSTIC':e.status;
+ const pill=s=>'<span class="status-pill '+(s==='ACCEPTED'||s==='DONE'?'good':s==='DIAGNOSTIC'||s==='PENDING'||s==='RUNNING'?'warn':s==='FAILED'?'lib-bad':'')+'">'+esc(labels[s]||s||'未知状态')+'</span>';
+ const date=v=>{if(!v)return '时间未提供';const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleString('zh-CN',{hour12:false});};
+ const base=()=>'/api/episodes/'+encodeURIComponent(selected);
+ const quality=()=>detail?.quality||detail?.episode?.quality||{};
+ const canAccept=()=>!!detail&&quality().status==='PASS'&&!detail.episode?.diagnostic&&statusOf(detail.episode||{})!=='DIAGNOSTIC'&&detail.episode?.status!=='RECORDING';
+ function controls(){
+  const allowed=state.connected&&!!detail&&!busy&&detail.episode?.status!=='RECORDING';
+  $('accept').disabled=!allowed||!canAccept()||detail?.episode?.accepted===true;
+  $('reject').disabled=!allowed||detail?.episode?.status==='REJECTED';$('note').disabled=!allowed;
+  const count=Number(detail?.frame_count)||0,idx=Number($('scrubber').value)||0;
+  $('scrubber').disabled=!state.connected||!count||caching;$('play').disabled=!state.connected||!count||caching;$('play').textContent=caching?'缓存中':playing?'暂停':'播放';$('prev').disabled=!state.connected||!count||idx<=0;$('next').disabled=!state.connected||!count||idx>=count-1;
+  const valid=state.episodes.filter(e=>e.accepted&&e.quality?.status==='PASS'&&!e.diagnostic&&statusOf(e)!=='DIAGNOSTIC');
+  const blocked=state.status?.mode==='RECORDING'||state.exports.some(e=>e.status==='RUNNING');
+  $('export').disabled=!state.connected||exporting||blocked||!valid.length;$('export-name').disabled=!state.connected||exporting||blocked;
+  $('export-hint').textContent=!state.connected?'等待机器人连接':blocked?'录制或导出进行中，完成后可创建新任务。':valid.length?`当前 ${valid.length} 条已自动接受且质量通过的示教可导出。导出在后台运行，结果保存在数据盘。`:'尚无符合条件的正式示教。质量通过的新样本会自动接受。';
+ }
+ function renderList(){
+  const filter=$('filter').value,items=state.episodes.filter(e=>filter==='ALL'||statusOf(e)===filter);
+  $('count').textContent=state.connected?`${items.length} / ${state.episodes.length} 条`:'— 条';
+  const key=JSON.stringify([state.connected,filter,selected,items]);if(key===lastList)return;lastList=key;
+  if(!state.connected){$('list').innerHTML='<div class="empty">等待机器人连接</div>';return;}
+  if(!items.length){$('list').innerHTML='<div class="empty">'+(state.episodes.length?'此筛选下暂无样本':'尚无采集样本<br>完成录制后，在这里回看与审核')+'</div>';return;}
+  $('list').innerHTML=items.map(e=>'<button type="button" class="lib-item '+(e.id===selected?'selected':'')+'" data-id="'+esc(e.id)+'" aria-pressed="'+(e.id===selected)+'"><span class="lib-item-id">'+esc(e.id)+'</span><span class="lib-item-bottom">'+pill(statusOf(e))+'<span>'+esc(fmt(e.frames,0))+' 帧</span><span>'+esc(fmt(e.actual_source_hz,2))+' Hz</span></span><span class="lib-item-date">'+esc(date(e.created_at))+'</span></button>').join('');
+ }
+ function clearFrames(message){for(const name of ['bottom','wrist']){$(name).hidden=true;$(name).removeAttribute('src');$(name+'-empty').textContent=message;$(name+'-empty').hidden=false;}}
+ function dropCache(){warmToken++;for(const url of blobs.values())URL.revokeObjectURL(url);blobs=new Map();caching=false;}
+ function stopPlay(){playing=false;clearInterval(playTimer);playTimer=null;if($('play')&&!caching)$('play').textContent='播放';}
+ function startPlay(){
+  const count=Number(detail?.frame_count)||0;if(!state.connected||!selected||count<2||caching){if(!caching)stopPlay();return;}
+  playing=true;clearInterval(playTimer);if($('play'))$('play').textContent='暂停';
+  const hz=Number(detail?.episode?.actual_source_hz)||30,period=Math.max(33,Math.round(1000/Math.max(1,Math.min(hz,30))));
+  playTimer=setInterval(()=>{
+   if(!playing||!detail||selected!==detail.episode?.id){stopPlay();return;}
+   const total=Number(detail.frame_count)||0;let idx=Number($('scrubber').value)||0;
+   if(idx>=total-1)idx=0;else idx+=1;$('scrubber').value=idx;frame(true);
+  },period);
+ }
+ function frameUrl(camera,index){return base()+'/frame?camera='+camera+'&index='+index;}
+ async function warmCache(){
+  const token=++warmToken,id=selected,count=Number(detail?.frame_count)||0;dropCache();warmToken=token;
+  if(!id||count<1)return;
+  caching=true;controls();$('play').textContent='缓存中';
+  const jobs=[];for(let i=0;i<count;i++)for(const cam of ['cam_bottom','cam_wrist'])jobs.push([cam,i]);
+  let done=0;const queue=jobs.slice();
+  async function worker(){
+   while(queue.length&&token===warmToken&&selected===id){
+    const [cam,i]=queue.shift();
+    try{const res=await fetch('/api/episodes/'+encodeURIComponent(id)+'/frame?camera='+cam+'&index='+i);if(res.ok&&token===warmToken){const blob=await res.blob();if(token===warmToken)blobs.set(cam+':'+i,URL.createObjectURL(blob));}}catch(e){}
+    done++;if(token===warmToken&&(done%6===0||done===jobs.length))$('position').textContent='缓存 '+done+' / '+jobs.length;
+   }
+  }
+  await Promise.all([worker(),worker(),worker(),worker()]);
+  if(token!==warmToken||selected!==id)return;
+  caching=false;$('position').textContent='1 / '+count+' 帧';controls();frame();startPlay();
+ }
+ function moveCursor(){
+  const box=$('joint-chart'),svg=box?.querySelector('svg'),cursor=$('joint-cursor');
+  if(!cursor)return;
+  const times=detail?.times||[];
+  if(!svg||times.length<2){cursor.hidden=true;return;}
+  const i=Math.max(0,Math.min(times.length-1,Number($('scrubber').value)||0));
+  const t0=times[0],t1=times[times.length-1],frac=t1>t0?(times[i]-t0)/(t1-t0):0;
+  cursor.hidden=false;cursor.style.height=svg.clientHeight+'px';cursor.style.left=((54+frac*(700-54-20))/700*svg.clientWidth)+'px';
+ }
+ function showPose(i){
+  const q=detail?.joints?.[i];
+  if(q&&typeof R.setRobotPose==='function')R.setRobotPose(q);
+  const note=$('robot-note');if(note)note.textContent=q?'第 '+(i+1)+' 帧':'随当前帧';
+  moveCursor();
+ }
+ function frame(duringPlay=false){
+  const count=Number(detail?.frame_count)||0;if(!state.connected||!selected||!count)return;
+  const i=Math.max(0,Math.min(count-1,Number($('scrubber').value)||0));$('scrubber').value=i;$('position').textContent=caching?$('position').textContent:`${i+1} / ${count} 帧`;if(!duringPlay)controls();showPose(i);
+  for(const [name,camera] of [['bottom','cam_bottom'],['wrist','cam_wrist']]){
+   const img=$(name),placeholder=$(name+'-empty'),token=++frameSerial[name],shown=img.getAttribute('src'),cached=blobs.get(camera+':'+i);
+   if(!shown){img.hidden=true;placeholder.hidden=false;placeholder.textContent=caching?'正在缓存画面…':'正在读取第 '+(i+1)+' 帧…';}
+   img.onload=()=>{if(frameSerial[name]!==token)return;img.hidden=false;placeholder.hidden=true;};
+   img.onerror=()=>{if(frameSerial[name]!==token)return;if(!shown){img.hidden=true;placeholder.hidden=false;placeholder.textContent='此帧读取失败，请切换帧或重新选择样本';}};
+   img.src=cached||frameUrl(camera,i);
+  }
+ }
+ function renderDetail(){
+  if(!detail)return;const e=detail.episode||{},q=quality(),count=Number(detail.frame_count)||0;
+  $('title').textContent=e.id||selected;$('date').textContent=date(e.created_at);$('status').outerHTML='<span id="lib-status" class="status-pill '+(statusOf(e)==='DIAGNOSTIC'?'warn':e.accepted?'good':'')+'">'+esc(labels[statusOf(e)]||statusOf(e)||'未知状态')+'</span>';
+  $('frames').textContent=fmt(count,0);$('hz').textContent=fmt(e.actual_source_hz,2);$('gap').textContent=fmt(e.max_gap_s==null?null:e.max_gap_s*1000,2);
+  const diagnostic=e.diagnostic||statusOf(e)==='DIAGNOSTIC';$('notice').classList.toggle('warn',diagnostic||q.status!=='PASS');
+  $('notice').textContent=diagnostic?'诊断片段：仅验证采集链路，不能接受为成功示教或导出训练。':q.status!=='PASS'?'质量尚未通过，不会自动接受。请查看下方检查结果。':e.accepted?'已自动接受为成功示教，将被包含在下次导出中。':'质量检查通过。';
+  $('scrubber').max=Math.max(0,count-1);$('scrubber').value=Math.min(Number($('scrubber').value)||0,Math.max(0,count-1));
+  const series=Array.isArray(detail.series)?detail.series:[],colors=['#4f46e5','#0891b2','#059669','#d97706','#db2777','#64748b'];
+  R.chart($('joint-chart'),colors.map((color,j)=>({name:'J'+(j+1),color,points:series.map(s=>[s.t,s.joints?.[j]])})),{unit:'时间 s / 角度 degree',height:180});
+  R.chart($('gap-chart'),[{name:'相邻帧间隙',color:'#0891b2',points:series.map(s=>[s.t,s.dt_ms])},{name:'100 ms 门限',color:'#dc2626',points:series.length?[[series[0].t,100],[series[series.length-1].t,100]]:[]}],{unit:'时间 s / 间隙 ms',height:135});
+  const errors=Array.isArray(q.errors)?q.errors:[];
+  $('quality').innerHTML='<span class="status-pill '+(q.status==='PASS'?'good':q.status==='FAIL'?'lib-bad':'warn')+'">'+esc(q.status||'未完成')+'</span>'+(errors.length?'<ul>'+errors.map(error=>'<li>'+esc(typeof error==='string'?error:JSON.stringify(error))+'</li>').join('')+'</ul>':'<span> '+(q.status==='PASS'?'自动检查通过，并已作为成功示教接受。':'暂无完整检查结果。')+'</span>');
+  controls();if(count){frame();if(!caching&&blobs.size<count*2)warmCache();}else{clearFrames('本样本暂无可回看的帧');$('position').textContent='0 / 0 帧';}
+ }
+ async function select(id,keepFrame=false){
+  const switching=!keepFrame||id!==selected;if(switching){stopPlay();dropCache();}selected=id;detail=switching?null:detail;signature='';const n=++request;clearTimeout(frameTimer);if(!keepFrame){$('scrubber').value=0;$('note').value='';}
+  clearFrames('正在加载样本…');for(const key of ['frames','hz','gap'])$(key).textContent='—';$('quality').textContent='正在读取质量报告…';$('position').textContent='— / — 帧';for(const key of ['joint-chart','gap-chart'])$(key).innerHTML='<div class="chart-empty">正在读取真实数据…</div>';$('notice').textContent='正在读取样本与质量报告…';$('title').textContent=id;$('status').textContent='读取中';renderList();controls();
+  try{const result=await R.api('/api/episodes/'+encodeURIComponent(id));if(n!==request||selected!==id)return;detail=result;signature=JSON.stringify(state.episodes.find(e=>e.id===id)||{});renderDetail();}
+  catch(error){if(n!==request)return;$('notice').textContent='样本加载失败：'+error.message;clearFrames('样本读取失败');R.toast(error.message,true);controls();}
+ }
+ async function review(decision){
+  if(!state.connected||!detail||busy||(decision==='accept'&&!canAccept()))return;
+  busy=true;controls();const id=selected;
+  try{await R.post('/api/episodes/'+encodeURIComponent(id)+'/review',{decision,note:$('note').value.trim()});R.toast(decision==='accept'?'已接受此成功示教':'已拒绝此样本，原始数据仍保留');await R.refresh();if(selected===id)await select(id,true);}
+  catch(error){R.toast(error.message,true);}finally{busy=false;controls();}
+ }
+ function renderExports(){
+  const key=JSON.stringify([state.connected,state.exports]);if(key===lastExports)return;lastExports=key;
+  $('exports').classList.toggle('empty',!state.connected||!state.exports.length);
+  if(!state.connected||!state.exports.length){$('exports').textContent=state.connected?'尚无导出任务。接受成功示教后，可在这里生成训练数据集。':'等待机器人连接后查看导出任务';return;}
+  $('exports').innerHTML=state.exports.map(e=>'<div class="lib-export-job"><div><strong>'+esc(e.name||e.id)+'</strong><small>'+esc(date(e.created_at))+' · '+esc(fmt(e.episodes,0))+' 段 / '+esc(fmt(e.frames,0))+' 帧</small></div>'+pill(e.status)+'<div class="lib-export-path">'+esc(e.path||'任务完成后显示数据盘路径')+'</div>'+(e.error?'<div class="lib-export-error">导出失败：'+esc(e.error)+'</div>':'')+'</div>').join('');
+ }
+ $('filter').addEventListener('change',renderList);
+ $('list').addEventListener('click',ev=>{const button=ev.target.closest('button[data-id]');if(button&&state.connected)select(button.dataset.id);});
+ $('scrubber').addEventListener('input',()=>{stopPlay();const count=detail?.frame_count||0;$('position').textContent=`${Number($('scrubber').value)+1} / ${count} 帧`;controls();clearTimeout(frameTimer);frameTimer=setTimeout(frame,90);});
+ $('play').addEventListener('click',()=>{if(playing)stopPlay();else startPlay();controls();});
+ $('prev').addEventListener('click',()=>{stopPlay();$('scrubber').value=Number($('scrubber').value)-1;frame();});$('next').addEventListener('click',()=>{stopPlay();$('scrubber').value=Number($('scrubber').value)+1;frame();});
+ $('accept').addEventListener('click',()=>review('accept'));$('reject').addEventListener('click',()=>review('reject'));
+ $('export').addEventListener('click',async()=>{if($('export').disabled)return;exporting=true;controls();try{await R.post('/api/exports',{name:$('export-name').value.trim()});$('export-name').value='';R.toast('导出任务已创建，进度见下方列表');await R.refresh();}catch(error){R.toast(error.message,true);}finally{exporting=false;controls();}});
+ R.on(s=>{const wasConnected=lastConnected;lastConnected=s.connected;state=s;renderList();renderExports();controls();if(!s.connected){$('notice').textContent=detail?'等待机器人连接；当前已显示的数据可能过期。':'等待机器人连接';return;}if(!selected){$('notice').textContent=s.episodes.length?'请从左侧选择一条样本，检查画面和质量。':'尚无采集样本，完成一次录制后再回看。';return;}const updated=s.episodes.find(e=>e.id===selected);if(updated&&detail&&!busy&&signature!==JSON.stringify(updated))select(selected,true);else if(!wasConnected&&detail)renderDetail();});
+})();
+</script>
+
+
+<!-- ===== 30-evaluation.html ===== -->
+<section class="sec" id="evaluation" data-nav="训练评测">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow"><span class="n">03</span> TRAINING &amp; EVALUATION</div>
+      <h2>让每次训练，都有可回看的评测记录</h2>
+      <p class="lead">导入真实训练与评测结果，查看损失曲线、任务成功次数和关节误差；保留检查点与数据集的对应关系。</p>
+    </div>
+    <div class="eval-status"><span class="status-pill" id="eval-training-status">训练机未接入</span><span id="eval-connection">等待机器人连接后可导入结果。当前没有运行训练或模型评测。</span></div>
+    <div class="card eval-controls">
+      <label for="eval-run">查看记录<select class="field" id="eval-run" disabled><option value="">暂无评测记录</option></select></label>
+      <div class="eval-run-meta"><span id="eval-checkpoint">检查点：—</span><span id="eval-dataset">数据集：—</span><span id="eval-created">导入时间：—</span></div>
+    </div>
+    <div class="eval-metrics">
+      <div class="card"><div class="eval-label">任务成功 / 试验次数</div><div class="eval-value metric" id="eval-success">— <small>/ —</small></div><div class="eval-caption" id="eval-rate">尚无实测结果</div></div>
+      <div class="card"><div class="eval-label">平均关节 MAE</div><div class="eval-value metric"><span id="eval-mae">—</span> <small>°</small></div><div class="eval-caption">预测与参考动作的平均绝对误差</div></div>
+      <div class="card"><div class="eval-label">平均推理延迟</div><div class="eval-value metric"><span id="eval-latency">—</span> <small>ms</small></div><div class="eval-caption">仅显示导入结果的测量值</div></div>
+      <div class="card"><div class="eval-label">最近记录的训练步</div><div class="eval-value metric" id="eval-step">—</div><div class="eval-caption" id="eval-loss">训练损失：— · 验证损失：—</div></div>
+    </div>
+    <div class="eval-plots">
+      <figure class="card figure"><div class="eval-card-head"><h3>训练与验证损失</h3><span class="eval-axis">横轴：优化器 step</span></div><div id="eval-loss-chart" class="eval-plot"><div class="empty">尚无训练曲线<br><span class="small">导入包含 step、loss 的真实训练日志后显示</span></div></div><figcaption class="cap">曲线最多展示约 1,000 个保留极值的采样点，原始记录完整保留。验证损失仅在提供 validation_loss 时显示；损失降低不等于任务成功。</figcaption></figure>
+      <figure class="card figure"><div class="eval-card-head"><h3>六关节误差分布</h3><span class="eval-axis">MAE · degree</span></div><div id="eval-joint-chart" class="eval-plot"><div class="empty">尚无分关节评测<br><span class="small">导入 joint1 至 joint6 的实测误差</span></div></div><figcaption class="cap">关节顺序 joint1 → joint6。仅有平均误差时，不推算各关节结果。</figcaption></figure>
+    </div>
+    <div class="card eval-comparison">
+      <div class="eval-card-head"><h3>评测记录对比</h3><span class="eval-axis" id="eval-count">暂无结果</span></div>
+      <p class="small muted">只有相同数据集、评测方法和硬件的结果才适合直接比较；请在记录备注中注明测量条件。</p>
+      <div id="eval-compare"><div class="empty">还没有可比较的记录。完成训练或现场评测后，从下方导入 JSON。</div></div>
+      <details id="eval-notes-wrap" hidden><summary>当前记录的测量备注</summary><p id="eval-notes"></p></details>
+    </div>
+    <div class="card eval-import">
+      <div><div class="eval-card-head"><h3>导入真实结果</h3><span class="status-pill">JSON 文件</span></div><p class="small muted">先下载空模板，填写运行名称、检查点、数据集与已测量的指标。未测量字段保留 null，训练记录使用空数组。</p><div class="toolbar"><button class="btn" id="eval-template" type="button">下载空模板</button><label class="eval-file-label" for="eval-file">选择结果文件<input class="field" type="file" id="eval-file" accept=".json,application/json" disabled></label></div><div class="eval-import-bottom"><button class="btn primary" type="button" id="eval-import-btn" disabled>校验并导入</button><p id="eval-import-message" class="small muted" role="status" aria-live="polite">等待机器人连接；模板可随时下载。</p></div></div>
+      <div class="eval-import-help"><h4>结果从哪里来？</h4><ol><li>从训练日志提取实际 step 与 loss。</li><li>记录现场成功次数与总试验次数。</li><li>填入离线关节误差、推理延迟与测量条件。</li></ol><p class="small muted">本页只保存和展示结果，不启动 GPU 训练，也不触发机械臂动作。新机器人需要独立数据集与归一化。</p></div>
+    </div>
+    <p class="src">数据来源：机器人上的用户导入记录。缺失指标显示「—」，不以 0 代替；导入结果并不代表已核验实际任务成功。</p>
+  </div>
+</section>
+<style>
+#evaluation .eyebrow{color:var(--ok)}
+#evaluation .eval-status{display:flex;gap:14px;align-items:center;padding:12px 16px;background:#ecfdf5;border:1px solid #cceee0;border-radius:12px;margin-bottom:18px;font-size:13px;color:#386252}
+#evaluation .eval-controls{display:flex;gap:24px;align-items:center;margin-bottom:16px;padding:16px 20px}
+#evaluation .eval-controls label{font-size:12px;font-weight:700;min-width:220px;display:flex;flex-direction:column;gap:5px}
+#evaluation .eval-controls select{width:100%;max-width:350px}
+#evaluation .eval-run-meta{min-width:0;display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px;overflow-wrap:anywhere}
+#evaluation .eval-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+#evaluation .eval-metrics .card{padding:18px 20px}
+#evaluation .eval-label{font-size:13px;color:var(--muted)}
+#evaluation .eval-value{font-size:29px;line-height:1.35;margin:7px 0;color:#064e3b;font-weight:750}
+#evaluation .eval-value small{font-size:15px;color:var(--muted);font-weight:500}
+#evaluation .eval-caption{font-size:11px;color:var(--muted);line-height:1.5}
+#evaluation .eval-plots{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;margin-bottom:18px}
+#evaluation .eval-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+#evaluation h3{font-size:17px;margin:0}
+#evaluation .eval-axis{font-size:11px;color:var(--muted);white-space:nowrap}
+#evaluation .eval-plot{min-height:195px;display:flex;flex-direction:column;justify-content:center}
+#evaluation .eval-plot .empty{padding:38px 16px;line-height:1.9}
+#evaluation .eval-plot svg{width:100%;display:block}
+#evaluation .eval-comparison{margin-bottom:18px}
+#evaluation .eval-scroll{overflow-x:auto}
+#evaluation .eval-table{width:100%;border-collapse:collapse;font-size:12px;min-width:680px}
+#evaluation .eval-table th{text-align:left;padding:10px 12px;background:var(--surface-2);font-weight:600;color:var(--muted)}
+#evaluation .eval-table td{padding:12px;border-top:1px solid var(--line);vertical-align:middle}
+#evaluation .eval-table td:first-child{max-width:220px;overflow-wrap:anywhere}
+#evaluation .eval-table small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+#evaluation .eval-table .selected{background:#f0fdf8}
+#evaluation .eval-bar{height:5px;max-width:125px;background:var(--bg-2);border-radius:4px;margin-top:5px}
+#evaluation .eval-bar i{display:block;height:100%;border-radius:4px;background:var(--ok)}
+#evaluation .eval-bar.latency i{background:var(--brand-3)}
+#evaluation .eval-open{border:0;background:transparent;padding:0;font:inherit;text-align:left;font-weight:700;color:var(--brand);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#evaluation .eval-import{display:grid;grid-template-columns:1.5fr 1fr;gap:28px}
+#evaluation .eval-import-help{border-left:1px solid var(--line);padding-left:26px;font-size:13px}
+#evaluation .eval-import-help ol{padding-left:19px;margin:8px 0 12px}
+#evaluation .eval-import-help li{margin:5px 0}
+#evaluation .eval-file-label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+#evaluation .eval-file-label input{font-size:12px;width:100%}
+#evaluation .eval-import .toolbar{align-items:flex-end;margin-top:16px}
+#evaluation .eval-import-bottom{display:flex;align-items:center;gap:14px;margin-top:15px}
+#evaluation .eval-import-bottom .btn{flex-shrink:0}
+#evaluation .eval-import-bottom p{margin:0;overflow-wrap:anywhere}
+#evaluation #eval-import-message.error{color:var(--bad)}
+#evaluation details{font-size:12px;color:var(--muted);margin-top:14px}
+#evaluation details summary{cursor:pointer}
+#evaluation #eval-notes{white-space:pre-wrap;overflow-wrap:anywhere;padding-top:10px}
+@media(max-width:1000px){#evaluation .eval-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}#evaluation .eval-plots{grid-template-columns:1.15fr 1fr}#evaluation .eval-card-head{flex-wrap:wrap;gap:5px}#evaluation .eval-import{grid-template-columns:1.4fr 1fr;gap:20px}#evaluation .eval-import-help{padding-left:20px}}
+@media(max-width:700px){#evaluation .eval-status{align-items:flex-start;flex-direction:column;gap:8px}#evaluation .eval-controls{flex-direction:column;align-items:stretch;gap:10px}#evaluation .eval-controls select{max-width:none}#evaluation .eval-plots{grid-template-columns:1fr}#evaluation .eval-import{grid-template-columns:1fr}#evaluation .eval-import-help{border-left:0;border-top:1px solid var(--line);padding:18px 0 0}#evaluation .eval-value{font-size:25px}#evaluation .eval-import-bottom{align-items:flex-start;flex-direction:column}#evaluation .eval-metrics .card{padding:14px}}
+</style>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id), esc=R5.escape;
+  let selected='',signature='',runs=[],connected=false,importing=false;
+  const finite=v=>typeof v==='number'&&Number.isFinite(v);
+  const value=(v,n=2)=>finite(v)?R5.fmt(v,n):'—';
+  function empty(el,message){el.innerHTML='<div class="empty">'+esc(message)+'</div>';}
+  function render(){
+    const run=runs.find(r=>r.id===selected),e=run?.evaluation||{},training=(run?.training||[]).filter(p=>finite(p.step)).slice().sort((a,b)=>a.step-b.step),last=training.at(-1);
+    $('eval-checkpoint').textContent='检查点：'+(run?.checkpoint||'—');$('eval-dataset').textContent='数据集：'+(run?.dataset||'—');$('eval-created').textContent='导入时间：'+(run?.created_at?new Date(run.created_at).toLocaleString('zh-CN'):'—');
+    $('eval-success').innerHTML=esc(value(e.successes,0))+' <small>/ '+esc(value(e.trials,0))+'</small>';
+    $('eval-rate').textContent=finite(e.successes)&&finite(e.trials)&&e.trials>0?'成功率 '+value(100*e.successes/e.trials,1)+'% · 用户导入':e.trials===0?'尚未进行任务试验':'尚无实测结果';
+    $('eval-mae').textContent=value(e.mean_joint_mae_deg);$('eval-latency').textContent=value(e.mean_latency_ms,1);$('eval-step').textContent=value(last?.step,0);$('eval-loss').textContent='训练损失：'+value(last?.loss,4)+' · 验证损失：'+value(last?.validation_loss,4);
+    const loss=training.filter(p=>finite(p.loss)).map(p=>[p.step,p.loss]),validation=training.filter(p=>finite(p.validation_loss)).map(p=>[p.step,p.validation_loss]);
+    if(loss.length||validation.length)R5.chart($('eval-loss-chart'),[{name:'训练 loss',color:'#059669',points:loss},{name:'验证 loss',color:'#7c3aed',points:validation}],{unit:'step / loss',height:190});else empty($('eval-loss-chart'),'尚无训练曲线。导入实际 step 与 loss 后显示。');
+    const joints=e.per_joint_mae_deg;
+    if(Array.isArray(joints)&&joints.length===6&&joints.every(finite)){
+      const max=Math.max(...joints,0.01),base=155;
+      $('eval-joint-chart').innerHTML='<svg viewBox="0 0 420 190" role="img" aria-label="joint1 至 joint6 平均绝对误差，单位度"><line x1="24" y1="155" x2="405" y2="155" stroke="#cfd7e5"/>'+joints.map((v,i)=>{const x=34+i*62,h=v/max*112;return '<rect x="'+x+'" y="'+(base-h)+'" width="32" height="'+h+'" rx="4" fill="#059669"/><text x="'+(x+16)+'" y="'+(base-h-8)+'" text-anchor="middle" font-size="12" fill="#273449">'+esc(value(v))+'</text><text x="'+(x+16)+'" y="176" text-anchor="middle" font-size="11" fill="#5f6b80">J'+(i+1)+'</text>';}).join('')+'</svg>';
+    }else empty($('eval-joint-chart'),'尚无分关节误差。平均误差不会拆分为各关节结果。');
+    $('eval-count').textContent=runs.length?runs.length+' 条用户导入记录':'暂无结果';
+    if(!runs.length)empty($('eval-compare'),'还没有可比较的记录。完成训练或现场评测后，从下方导入 JSON。');
+    else{
+      const maxMae=Math.max(...runs.map(r=>r.evaluation?.mean_joint_mae_deg||0),.01),maxLatency=Math.max(...runs.map(r=>r.evaluation?.mean_latency_ms||0),.01);
+      function metric(v,max,latency=false){return esc(value(v,latency?1:2))+(finite(v)?'<div class="eval-bar '+(latency?'latency':'')+'"><i style="width:'+Math.max(0,Math.min(100,v/max*100))+'%"></i></div>':'');}
+      $('eval-compare').innerHTML='<div class="eval-scroll"><table class="eval-table"><thead><tr><th>记录 / 数据集</th><th>成功 / 试验</th><th>关节 MAE ↓ (°)</th><th>延迟 ↓ (ms)</th></tr></thead><tbody>'+runs.map(r=>{const m=r.evaluation||{};return '<tr'+(r.id===selected?' class="selected"':'')+'><td><button class="eval-open" type="button" data-run="'+esc(r.id)+'">'+esc(r.name||r.id)+'</button><small>'+esc(r.dataset||'未注明数据集')+'</small></td><td class="metric">'+esc(value(m.successes,0))+' / '+esc(value(m.trials,0))+'</td><td class="metric">'+metric(m.mean_joint_mae_deg,maxMae)+'</td><td class="metric">'+metric(m.mean_latency_ms,maxLatency,true)+'</td></tr>';}).join('')+'</tbody></table></div>';
+    }
+    $('eval-notes-wrap').hidden=!run?.notes;$('eval-notes').textContent=run?.notes||'';
+  }
+  $('eval-run').addEventListener('change',()=>{selected=$('eval-run').value;render();});
+  $('eval-compare').addEventListener('click',event=>{const b=event.target.closest('[data-run]');if(b){selected=b.dataset.run;$('eval-run').value=selected;render();}});
+  function buttons(){ $('eval-file').disabled=!connected||importing;$('eval-import-btn').disabled=!connected||importing||!$('eval-file').files.length; }
+  R5.on(s=>{
+    connected=s.connected;buttons();if(!importing&&!$('eval-file').files.length&&/^(等待|请选择)/.test($('eval-import-message').textContent))$('eval-import-message').textContent=connected?'请选择 JSON 结果文件；导入前会校验格式。':'等待机器人连接；模板可随时下载。';$('eval-training-status').textContent=s.status?.training?.connected?'训练机已连接':'训练机未接入';
+    $('eval-connection').textContent=connected?'当前展示用户导入结果；此面板不启动训练或现场评测。':'等待机器人连接后可导入结果。已有记录可能不是最新状态。';
+    const next=JSON.stringify(s.evaluations||[]);if(next===signature)return;signature=next;runs=s.evaluations||[];
+    if(!runs.some(r=>r.id===selected))selected=runs[0]?.id||'';
+    $('eval-run').innerHTML=runs.length?runs.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name||r.id)+'</option>').join(''):'<option value="">暂无评测记录</option>';$('eval-run').value=selected;$('eval-run').disabled=!runs.length;render();
+  });
+  const template={name:'',checkpoint:'',dataset:'',training:[],evaluation:{successes:null,trials:null,mean_joint_mae_deg:null,mean_latency_ms:null,per_joint_mae_deg:null},notes:''};
+  $('eval-template').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(template,null,2)+'\n'],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='robot5_evaluation_empty.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+  $('eval-file').addEventListener('change',()=>{buttons();$('eval-import-message').classList.remove('error');$('eval-import-message').textContent=$('eval-file').files[0]?'已选择 '+$('eval-file').files[0].name+'，点击校验并导入。':'请选择 JSON 结果文件。';});
+  function validate(input){
+    if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('JSON 顶层应是一个评测记录对象。');
+    const run={};for(const key of ['name','checkpoint','dataset']){if(typeof input[key]!=='string'||!input[key].trim())throw new Error('请填写 '+key+'（运行名称、检查点和数据集均必填）。');if(input[key].length>2000)throw new Error(key+' 过长。');run[key]=input[key].trim();}
+    if(!Array.isArray(input.training)||input.training.length>50000)throw new Error('training 应是数组，最多 50000 个采样点。');
+    let prev=-1;run.training=input.training.map((p,i)=>{if(!p||!Number.isInteger(p.step)||p.step<0||p.step<=prev)throw new Error('第 '+(i+1)+' 个训练点的 step 须是严格递增的非负整数。');prev=p.step;if(!finite(p.loss)||p.loss<0)throw new Error('第 '+(i+1)+' 个训练点的 loss 须是非负有限数字。');const point={step:p.step,loss:p.loss};if(p.validation_loss!==null&&p.validation_loss!==undefined){if(!finite(p.validation_loss)||p.validation_loss<0)throw new Error('validation_loss 须是非负数字或 null。');point.validation_loss=p.validation_loss;}return point;});
+    const e=input.evaluation;if(!e||typeof e!=='object'||Array.isArray(e))throw new Error('evaluation 应为指标对象，未测量字段请填 null。');run.evaluation={};
+    for(const key of ['successes','trials','mean_joint_mae_deg','mean_latency_ms']){const v=e[key];if(v===null||v===undefined){run.evaluation[key]=null;continue;}if(!finite(v)||v<0)throw new Error(key+' 须是非负数字或 null。');if(['successes','trials'].includes(key)&&!Number.isInteger(v))throw new Error(key+' 须是整数。');run.evaluation[key]=v;}
+    if((e.successes!=null)!==(e.trials!=null))throw new Error('成功次数和试验次数需要一起提供。');if(e.successes!=null&&e.successes>e.trials)throw new Error('成功次数不能大于试验次数。');
+    const joints=e.per_joint_mae_deg;if(joints!=null&&(!Array.isArray(joints)||joints.length!==6||!joints.every(v=>finite(v)&&v>=0)))throw new Error('per_joint_mae_deg 应为 6 个非负数字，或 null。');run.evaluation.per_joint_mae_deg=joints??null;
+    if(!run.training.length&&!Object.values(run.evaluation).some(v=>v!==null))throw new Error('空模板没有实测结果；请至少填写一项真实指标或训练曲线。');
+    if(input.notes!=null&&typeof input.notes!=='string')throw new Error('notes 应为文字。');run.notes=input.notes||'';return run;
+  }
+  $('eval-import-btn').addEventListener('click',async()=>{
+    const file=$('eval-file').files[0];if(!file||!connected||importing)return;
+    importing=true;buttons();$('eval-import-message').classList.remove('error');$('eval-import-message').textContent='正在校验并保存…';
+    try{if(file.size>3.5*1024*1024)throw new Error('文件超过 3.5 MiB，请先对训练曲线采样。');let raw;try{raw=JSON.parse(await file.text());}catch(_){throw new Error('文件不是有效 JSON，请检查逗号、引号和数字格式。');}const run=validate(raw);await R5.post('/api/evaluations/import',{run});$('eval-file').value='';$('eval-import-message').textContent='已保存结果；来源标记为用户导入。';R5.toast('评测结果已导入');await R5.refresh();}
+    catch(error){$('eval-import-message').textContent=error.message;$('eval-import-message').classList.add('error');R5.toast(error.message,true);}
+    finally{importing=false;buttons();}
+  });
+})();
+</script>
+
+</main><footer class="foot"><div class="wrap"><span>robot-5 · π0.5 绝对关节角采集</span><span>30 Hz / 17 维状态 / 7 维动作 · 仅在本机网络服务</span>
+</div></footer><div id="toast" role="status" aria-live="polite"></div></body></html>

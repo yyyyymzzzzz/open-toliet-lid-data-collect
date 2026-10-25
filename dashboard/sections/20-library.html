@@ -1,0 +1,199 @@
+<section class="sec" id="library" data-nav="数据回看">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="eyebrow"><span class="n">02</span> 数据回看与导出</div>
+      <h2>逐帧检查，把成功示教留给训练</h2>
+      <p class="lead">先检查画面、关节与时间间隙，再人工确认任务成功。诊断片段与质量失败样本不进入训练集。</p>
+    </header>
+    <div class="lib-layout">
+      <aside class="card lib-browser" aria-label="采集样本">
+        <div class="lib-cardhead"><h3>采集样本</h3><span id="lib-count" class="status-pill">— 条</span></div>
+        <label for="lib-filter" class="small">样本状态</label>
+        <select id="lib-filter" class="field">
+          <option value="ALL">全部样本</option><option value="PENDING">待审核</option><option value="ACCEPTED">已接受</option><option value="DIAGNOSTIC">诊断片段</option><option value="FAILED">质量失败</option><option value="REJECTED">已拒绝</option><option value="RECORDING">录制中</option>
+        </select>
+        <div id="lib-list" class="lib-list" aria-label="选择回看的样本"><div class="empty">等待机器人连接</div></div>
+        <p class="src">列表帧率来自源时间戳。标称 30 Hz 不代表实际采样率。</p>
+      </aside>
+      <div class="lib-main">
+        <article class="card lib-review" aria-labelledby="lib-title">
+          <div class="lib-cardhead"><div><h3 id="lib-title">选择一条样本</h3><p id="lib-date" class="small muted">连接后可回看真实采集帧</p></div><span id="lib-status" class="status-pill">未选择</span></div>
+          <div id="lib-notice" class="lib-notice" role="status">等待机器人连接</div>
+          <div class="lib-stats">
+            <div><span>原始帧数</span><strong id="lib-frames">—</strong></div>
+            <div><span>实际源采样率</span><strong><span id="lib-hz">—</span><small> Hz</small></strong></div>
+            <div><span>最大时间间隙</span><strong><span id="lib-gap">—</span><small> ms</small></strong></div>
+          </div>
+          <div class="lib-stage">
+          <div class="lib-cameras">
+            <figure><figcaption><b>俯视相机</b><span>cam_bottom</span></figcaption><div class="lib-frame"><img id="lib-bottom" alt="所选样本的俯视相机帧" hidden><span id="lib-bottom-empty">选择样本后显示画面</span></div></figure>
+            <figure><figcaption><b>腕部相机</b><span>cam_wrist</span></figcaption><div class="lib-frame"><img id="lib-wrist" alt="所选样本的腕部相机帧" hidden><span id="lib-wrist-empty">选择样本后显示画面</span></div></figure>
+          </div>
+          <div class="card lib-urdf"><div class="lib-cardhead"><h3>回放姿态</h3><span id="lib-robot-note" class="small muted">随当前帧</span></div><div id="lib-robot-host" class="lib-robot-host"></div></div>
+          </div>
+          <div class="lib-scrub">
+            <div class="lib-cardhead"><label for="lib-scrubber">连续回看</label><output id="lib-position" for="lib-scrubber">— / — 帧</output></div>
+            <input id="lib-scrubber" type="range" min="0" max="0" value="0" disabled aria-label="选择原始帧">
+            <div class="toolbar"><button id="lib-play" class="btn primary" type="button" disabled>播放</button><button id="lib-prev" class="btn" disabled aria-label="上一帧">← 上一帧</button><button id="lib-next" class="btn" disabled aria-label="下一帧">下一帧 →</button><span class="small muted" id="lib-play-hint">先缓存整段画面，再按采集帧率播放。关节曲线上的竖线对应当前帧。</span></div>
+          </div>
+          <details class="lib-charts" open><summary>关节与采样质量</summary>
+            <h4>六关节绝对角度 <span class="muted">· degree</span></h4><div class="lib-chart-box"><div id="lib-joint-chart" aria-label="六关节绝对角度曲线"><div class="chart-empty">选择样本后显示真实关节曲线</div></div><div id="lib-joint-cursor" hidden></div></div>
+            <h4>相邻源帧时间间隙 <span class="muted">· ms</span></h4><div id="lib-gap-chart" aria-label="帧间隙曲线"><div class="chart-empty">选择样本后显示时间间隙</div></div>
+            <p class="src">横轴：采集时间 / 秒。曲线最多显示 1,000 个点；逐帧回看使用原始全部帧。时间间隙门限 100 ms。</p>
+          </details>
+          <div class="lib-quality"><h4>质量检查</h4><div id="lib-quality" class="small muted">尚未加载质量报告</div></div>
+          <div class="lib-review-actions">
+            <label for="lib-note" class="small">审核备注 <span class="muted">（可选）</span></label><textarea id="lib-note" class="field" rows="2" maxlength="500" placeholder="例如：完整打开盖子，双路画面无遮挡" disabled></textarea>
+            <div class="toolbar"><button id="lib-accept" class="btn primary" disabled>接受为成功示教</button><button id="lib-reject" class="btn danger" disabled>拒绝此样本</button></div>
+            <p id="lib-review-hint" class="src">质量通过的正式样本会自动接受。仍可手动拒绝；拒绝只改变标记，保留原始数据。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+    <article class="card lib-export" aria-labelledby="lib-export-heading">
+      <div class="lib-export-top"><div><div class="eyebrow lib-export-kicker">TRAINING DATA</div><h3 id="lib-export-heading">导出可训练数据集</h3><p class="small muted">仅包含「已接受 + 质量 PASS + 非诊断」样本，按真实时钟重采样到 30 Hz。</p></div><div class="lib-export-control"><label for="lib-export-name" class="sr-only">数据集名称，可选</label><input id="lib-export-name" class="field" maxlength="80" placeholder="数据集名称（可选）"><button id="lib-export" class="btn primary" disabled>创建导出任务</button></div></div>
+      <p id="lib-export-hint" class="src">等待机器人连接</p>
+      <div id="lib-exports" class="empty">尚无导出任务</div>
+      <details class="lib-contract"><summary>查看训练格式</summary><p class="small muted">π0.5 · 17 维状态 · 7 维绝对关节角动作 · 16 步预测。双路 RGB 图像等比例补边为 480 × 640。动作取下一帧关节角，末帧保持；夹爪固定为 0。新机器人数据需重算归一化。</p></details>
+    </article>
+  </div>
+</section>
+<style>
+#library .lib-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px;align-items:start}
+#library .lib-cardhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+#library h3{font-size:18px;margin:0 0 4px}#library .lib-cardhead p{margin:0}#library .lib-browser{padding:20px 16px}#library .lib-browser select{width:100%;margin:6px 0 14px}#library .lib-list{display:grid;gap:8px;max-height:735px;overflow:auto}#library .lib-item{width:100%;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:12px;font:inherit;color:var(--ink)}#library .lib-item:hover{border-color:#67b8cb;background:#f0faff}#library .lib-item.selected{border-color:#0891b2;background:#ecfeff;box-shadow:inset 3px 0 #0891b2}#library .lib-item:focus-visible{outline:3px solid #a5b4fc;outline-offset:1px}#library .lib-item-id{display:block;font-size:12px;font-family:var(--mono);overflow-wrap:anywhere;font-weight:650;margin-bottom:8px}#library .lib-item-bottom{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;font-size:11px;color:var(--muted)}#library .lib-item-date{display:block;margin-top:6px;font-size:11px;color:var(--muted)}#library .lib-item:disabled{cursor:not-allowed;opacity:.65}#library .lib-list .empty{padding:42px 12px;font-size:13px}#library .lib-review{padding:24px}#library #lib-title{overflow-wrap:anywhere;font-size:17px}#library .lib-notice{border:1px solid #cceaf0;background:#f2fbfd;border-radius:9px;padding:9px 12px;font-size:12px;color:#155e75;margin-bottom:16px}#library .lib-notice.warn{background:var(--warn-bg);border-color:#f5dfaf;color:#92400e}#library .lib-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}#library .lib-stats>div{border-left:2px solid #d8edf1;padding-left:12px}#library .lib-stats>div>span{display:block;font-size:12px;color:var(--muted)}#library .lib-stats strong{font-size:23px;font-weight:750;line-height:1.4;font-variant-numeric:tabular-nums}#library .lib-stats small{font-size:12px;color:var(--muted);font-weight:400}#library .lib-stage{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(220px,.72fr);gap:12px;align-items:stretch}#library .lib-cameras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#library .lib-urdf{margin:0;padding:12px;display:flex;flex-direction:column;min-width:0}#library .lib-urdf h3{font-size:15px}#library .lib-robot-host{position:relative;flex:1;min-height:240px;border-radius:10px;overflow:hidden;background:#eef2f7;border:1px solid var(--line)}#library .lib-robot-host canvas{display:block;width:100%;height:100%}#library .lib-chart-box{position:relative}#library #lib-joint-cursor{position:absolute;top:0;width:0;border-left:2px solid #0b1220;pointer-events:none;z-index:2}#library #lib-joint-cursor::before{content:"";position:absolute;left:-5px;top:0;width:8px;height:8px;border-radius:50%;background:#0b1220}#library figure{margin:0;min-width:0}#library figcaption{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:7px}#library figcaption span{font-size:11px;color:var(--muted);font-family:var(--mono)}#library .lib-frame{aspect-ratio:16/9;background:#111c2c;border:1px solid #23334b;border-radius:10px;display:grid;place-items:center;position:relative;overflow:hidden;color:#a5b4cb;font-size:12px;text-align:center}#library .lib-frame img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}#library [hidden]{display:none!important}#library .lib-scrub{padding:18px 0;border-bottom:1px solid var(--line)}#library .lib-scrub .lib-cardhead{font-size:12px;margin-bottom:6px}#library .lib-scrub output{color:var(--muted);font-variant-numeric:tabular-nums}#library .lib-scrub input{width:100%;accent-color:#0891b2;cursor:pointer;margin:0 0 12px}#library .lib-scrub .btn{padding:7px 12px;min-height:34px;font-size:12px}#library .lib-scrub .small{font-size:11px}#library summary{cursor:pointer;font-size:13px;font-weight:650;padding:14px 0;color:var(--ink-2)}#library .lib-charts h4{font-size:12px;margin:12px 0 0}#library .lib-charts .chart-empty{padding:22px 10px}#library .lib-quality{padding:15px 0;border-top:1px solid var(--line)}#library .lib-quality h4{font-size:13px}#library .lib-quality ul{padding-left:20px;margin:6px 0;color:var(--bad);overflow-wrap:anywhere}#library .lib-review-actions{border-top:1px solid var(--line);padding-top:14px}#library textarea{display:block;width:100%;margin:6px 0 12px;resize:vertical}#library .lib-review-actions .src{margin:10px 0 0}#library .lib-export{margin-top:20px;padding:24px}#library .lib-export-top{display:flex;justify-content:space-between;gap:20px;align-items:center}#library .lib-export-kicker{font-size:10px;color:#0891b2;margin-bottom:6px;letter-spacing:.12em}#library .lib-export-control{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}#library .lib-export-control input{width:195px}#library .lib-export .empty{padding:22px}#library .lib-export-job{display:grid;grid-template-columns:minmax(0,1.4fr) auto minmax(0,1fr);gap:14px;align-items:start;padding:13px 14px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;margin-top:8px;font-size:12px}#library .lib-export-job strong{overflow-wrap:anywhere}#library .lib-export-job small{display:block;color:var(--muted);margin-top:4px}#library .lib-export-path{overflow-wrap:anywhere;color:var(--muted);font-size:11px}#library .lib-export-error{color:var(--bad);overflow-wrap:anywhere;grid-column:1/-1}#library .lib-contract summary{padding-bottom:4px}#library .lib-contract p{margin-top:8px}#library .lib-bad{color:var(--bad);background:var(--bad-bg)}
+@media(max-width:1100px){#library .lib-stage{grid-template-columns:1fr}#library .lib-layout{grid-template-columns:220px minmax(0,1fr);gap:16px}#library .lib-review{padding:18px}#library .lib-export-top{align-items:flex-start}#library .lib-export-control{max-width:220px}#library .lib-export-control input{width:100%}#library .lib-export-control button{width:100%}#library .lib-stats strong{font-size:20px}#library .lib-frame{font-size:11px}#library figcaption{flex-wrap:wrap;gap:0 8px}}
+@media(max-width:760px){#library .lib-layout{grid-template-columns:1fr}#library .lib-list{max-height:260px;grid-template-columns:repeat(2,minmax(0,1fr))}#library .lib-list .empty{grid-column:1/-1}#library .lib-export-top{display:block}#library .lib-export-control{max-width:none;justify-content:flex-start;margin-top:14px}#library .lib-export-control input{width:auto;flex:1}#library .lib-export-control button{width:auto}#library .lib-export-job{grid-template-columns:1fr auto}#library .lib-export-path{grid-column:1/-1}}
+@media(max-width:450px){#library .lib-cameras{grid-template-columns:1fr}#library .lib-stats{gap:6px}#library .lib-stats>div{padding-left:7px}#library .lib-stats>div>span{font-size:10px}#library .lib-stats strong{font-size:18px}#library .lib-review-actions .btn{width:100%}}
+</style>
+<script>
+(()=>{
+ const root=document.getElementById('library'),$=id=>document.getElementById('lib-'+id),R=window.R5;
+ if(!root||!R)return;
+ const labels={ACCEPTED:'已接受',PENDING:'待审核',REJECTED:'已拒绝',DIAGNOSTIC:'诊断片段',FAILED:'质量失败',RECORDING:'录制中',RUNNING:'导出中',DONE:'已完成'};
+ let state=R.state,selected=null,detail=null,request=0,busy=false,exporting=false,caching=false,lastList='',lastExports='',signature='',frameTimer,playTimer=null,playing=false,lastConnected=false,frameSerial={bottom:0,wrist:0},warmToken=0,blobs=new Map();
+ const esc=R.escape,fmt=R.fmt;
+ const statusOf=e=>e.diagnostic?'DIAGNOSTIC':e.status;
+ const pill=s=>'<span class="status-pill '+(s==='ACCEPTED'||s==='DONE'?'good':s==='DIAGNOSTIC'||s==='PENDING'||s==='RUNNING'?'warn':s==='FAILED'?'lib-bad':'')+'">'+esc(labels[s]||s||'未知状态')+'</span>';
+ const date=v=>{if(!v)return '时间未提供';const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleString('zh-CN',{hour12:false});};
+ const base=()=>'/api/episodes/'+encodeURIComponent(selected);
+ const quality=()=>detail?.quality||detail?.episode?.quality||{};
+ const canAccept=()=>!!detail&&quality().status==='PASS'&&!detail.episode?.diagnostic&&statusOf(detail.episode||{})!=='DIAGNOSTIC'&&detail.episode?.status!=='RECORDING';
+ function controls(){
+  const allowed=state.connected&&!!detail&&!busy&&detail.episode?.status!=='RECORDING';
+  $('accept').disabled=!allowed||!canAccept()||detail?.episode?.accepted===true;
+  $('reject').disabled=!allowed||detail?.episode?.status==='REJECTED';$('note').disabled=!allowed;
+  const count=Number(detail?.frame_count)||0,idx=Number($('scrubber').value)||0;
+  $('scrubber').disabled=!state.connected||!count||caching;$('play').disabled=!state.connected||!count||caching;$('play').textContent=caching?'缓存中':playing?'暂停':'播放';$('prev').disabled=!state.connected||!count||idx<=0;$('next').disabled=!state.connected||!count||idx>=count-1;
+  const valid=state.episodes.filter(e=>e.accepted&&e.quality?.status==='PASS'&&!e.diagnostic&&statusOf(e)!=='DIAGNOSTIC');
+  const blocked=state.status?.mode==='RECORDING'||state.exports.some(e=>e.status==='RUNNING');
+  $('export').disabled=!state.connected||exporting||blocked||!valid.length;$('export-name').disabled=!state.connected||exporting||blocked;
+  $('export-hint').textContent=!state.connected?'等待机器人连接':blocked?'录制或导出进行中，完成后可创建新任务。':valid.length?`当前 ${valid.length} 条已自动接受且质量通过的示教可导出。导出在后台运行，结果保存在数据盘。`:'尚无符合条件的正式示教。质量通过的新样本会自动接受。';
+ }
+ function renderList(){
+  const filter=$('filter').value,items=state.episodes.filter(e=>filter==='ALL'||statusOf(e)===filter);
+  $('count').textContent=state.connected?`${items.length} / ${state.episodes.length} 条`:'— 条';
+  const key=JSON.stringify([state.connected,filter,selected,items]);if(key===lastList)return;lastList=key;
+  if(!state.connected){$('list').innerHTML='<div class="empty">等待机器人连接</div>';return;}
+  if(!items.length){$('list').innerHTML='<div class="empty">'+(state.episodes.length?'此筛选下暂无样本':'尚无采集样本<br>完成录制后，在这里回看与审核')+'</div>';return;}
+  $('list').innerHTML=items.map(e=>'<button type="button" class="lib-item '+(e.id===selected?'selected':'')+'" data-id="'+esc(e.id)+'" aria-pressed="'+(e.id===selected)+'"><span class="lib-item-id">'+esc(e.id)+'</span><span class="lib-item-bottom">'+pill(statusOf(e))+'<span>'+esc(fmt(e.frames,0))+' 帧</span><span>'+esc(fmt(e.actual_source_hz,2))+' Hz</span></span><span class="lib-item-date">'+esc(date(e.created_at))+'</span></button>').join('');
+ }
+ function clearFrames(message){for(const name of ['bottom','wrist']){$(name).hidden=true;$(name).removeAttribute('src');$(name+'-empty').textContent=message;$(name+'-empty').hidden=false;}}
+ function dropCache(){warmToken++;for(const url of blobs.values())URL.revokeObjectURL(url);blobs=new Map();caching=false;}
+ function stopPlay(){playing=false;clearInterval(playTimer);playTimer=null;if($('play')&&!caching)$('play').textContent='播放';}
+ function startPlay(){
+  const count=Number(detail?.frame_count)||0;if(!state.connected||!selected||count<2||caching){if(!caching)stopPlay();return;}
+  playing=true;clearInterval(playTimer);if($('play'))$('play').textContent='暂停';
+  const hz=Number(detail?.episode?.actual_source_hz)||30,period=Math.max(33,Math.round(1000/Math.max(1,Math.min(hz,30))));
+  playTimer=setInterval(()=>{
+   if(!playing||!detail||selected!==detail.episode?.id){stopPlay();return;}
+   const total=Number(detail.frame_count)||0;let idx=Number($('scrubber').value)||0;
+   if(idx>=total-1)idx=0;else idx+=1;$('scrubber').value=idx;frame(true);
+  },period);
+ }
+ function frameUrl(camera,index){return base()+'/frame?camera='+camera+'&index='+index;}
+ async function warmCache(){
+  const token=++warmToken,id=selected,count=Number(detail?.frame_count)||0;dropCache();warmToken=token;
+  if(!id||count<1)return;
+  caching=true;controls();$('play').textContent='缓存中';
+  const jobs=[];for(let i=0;i<count;i++)for(const cam of ['cam_bottom','cam_wrist'])jobs.push([cam,i]);
+  let done=0;const queue=jobs.slice();
+  async function worker(){
+   while(queue.length&&token===warmToken&&selected===id){
+    const [cam,i]=queue.shift();
+    try{const res=await fetch('/api/episodes/'+encodeURIComponent(id)+'/frame?camera='+cam+'&index='+i);if(res.ok&&token===warmToken){const blob=await res.blob();if(token===warmToken)blobs.set(cam+':'+i,URL.createObjectURL(blob));}}catch(e){}
+    done++;if(token===warmToken&&(done%6===0||done===jobs.length))$('position').textContent='缓存 '+done+' / '+jobs.length;
+   }
+  }
+  await Promise.all([worker(),worker(),worker(),worker()]);
+  if(token!==warmToken||selected!==id)return;
+  caching=false;$('position').textContent='1 / '+count+' 帧';controls();frame();startPlay();
+ }
+ function moveCursor(){
+  const box=$('joint-chart'),svg=box?.querySelector('svg'),cursor=$('joint-cursor');
+  if(!cursor)return;
+  const times=detail?.times||[];
+  if(!svg||times.length<2){cursor.hidden=true;return;}
+  const i=Math.max(0,Math.min(times.length-1,Number($('scrubber').value)||0));
+  const t0=times[0],t1=times[times.length-1],frac=t1>t0?(times[i]-t0)/(t1-t0):0;
+  cursor.hidden=false;cursor.style.height=svg.clientHeight+'px';cursor.style.left=((54+frac*(700-54-20))/700*svg.clientWidth)+'px';
+ }
+ function showPose(i){
+  const q=detail?.joints?.[i];
+  if(q&&typeof R.setRobotPose==='function')R.setRobotPose(q);
+  const note=$('robot-note');if(note)note.textContent=q?'第 '+(i+1)+' 帧':'随当前帧';
+  moveCursor();
+ }
+ function frame(duringPlay=false){
+  const count=Number(detail?.frame_count)||0;if(!state.connected||!selected||!count)return;
+  const i=Math.max(0,Math.min(count-1,Number($('scrubber').value)||0));$('scrubber').value=i;$('position').textContent=caching?$('position').textContent:`${i+1} / ${count} 帧`;if(!duringPlay)controls();showPose(i);
+  for(const [name,camera] of [['bottom','cam_bottom'],['wrist','cam_wrist']]){
+   const img=$(name),placeholder=$(name+'-empty'),token=++frameSerial[name],shown=img.getAttribute('src'),cached=blobs.get(camera+':'+i);
+   if(!shown){img.hidden=true;placeholder.hidden=false;placeholder.textContent=caching?'正在缓存画面…':'正在读取第 '+(i+1)+' 帧…';}
+   img.onload=()=>{if(frameSerial[name]!==token)return;img.hidden=false;placeholder.hidden=true;};
+   img.onerror=()=>{if(frameSerial[name]!==token)return;if(!shown){img.hidden=true;placeholder.hidden=false;placeholder.textContent='此帧读取失败，请切换帧或重新选择样本';}};
+   img.src=cached||frameUrl(camera,i);
+  }
+ }
+ function renderDetail(){
+  if(!detail)return;const e=detail.episode||{},q=quality(),count=Number(detail.frame_count)||0;
+  $('title').textContent=e.id||selected;$('date').textContent=date(e.created_at);$('status').outerHTML='<span id="lib-status" class="status-pill '+(statusOf(e)==='DIAGNOSTIC'?'warn':e.accepted?'good':'')+'">'+esc(labels[statusOf(e)]||statusOf(e)||'未知状态')+'</span>';
+  $('frames').textContent=fmt(count,0);$('hz').textContent=fmt(e.actual_source_hz,2);$('gap').textContent=fmt(e.max_gap_s==null?null:e.max_gap_s*1000,2);
+  const diagnostic=e.diagnostic||statusOf(e)==='DIAGNOSTIC';$('notice').classList.toggle('warn',diagnostic||q.status!=='PASS');
+  $('notice').textContent=diagnostic?'诊断片段：仅验证采集链路，不能接受为成功示教或导出训练。':q.status!=='PASS'?'质量尚未通过，不会自动接受。请查看下方检查结果。':e.accepted?'已自动接受为成功示教，将被包含在下次导出中。':'质量检查通过。';
+  $('scrubber').max=Math.max(0,count-1);$('scrubber').value=Math.min(Number($('scrubber').value)||0,Math.max(0,count-1));
+  const series=Array.isArray(detail.series)?detail.series:[],colors=['#4f46e5','#0891b2','#059669','#d97706','#db2777','#64748b'];
+  R.chart($('joint-chart'),colors.map((color,j)=>({name:'J'+(j+1),color,points:series.map(s=>[s.t,s.joints?.[j]])})),{unit:'时间 s / 角度 degree',height:180});
+  R.chart($('gap-chart'),[{name:'相邻帧间隙',color:'#0891b2',points:series.map(s=>[s.t,s.dt_ms])},{name:'100 ms 门限',color:'#dc2626',points:series.length?[[series[0].t,100],[series[series.length-1].t,100]]:[]}],{unit:'时间 s / 间隙 ms',height:135});
+  const errors=Array.isArray(q.errors)?q.errors:[];
+  $('quality').innerHTML='<span class="status-pill '+(q.status==='PASS'?'good':q.status==='FAIL'?'lib-bad':'warn')+'">'+esc(q.status||'未完成')+'</span>'+(errors.length?'<ul>'+errors.map(error=>'<li>'+esc(typeof error==='string'?error:JSON.stringify(error))+'</li>').join('')+'</ul>':'<span> '+(q.status==='PASS'?'自动检查通过，并已作为成功示教接受。':'暂无完整检查结果。')+'</span>');
+  controls();if(count){frame();if(!caching&&blobs.size<count*2)warmCache();}else{clearFrames('本样本暂无可回看的帧');$('position').textContent='0 / 0 帧';}
+ }
+ async function select(id,keepFrame=false){
+  const switching=!keepFrame||id!==selected;if(switching){stopPlay();dropCache();}selected=id;detail=switching?null:detail;signature='';const n=++request;clearTimeout(frameTimer);if(!keepFrame){$('scrubber').value=0;$('note').value='';}
+  clearFrames('正在加载样本…');for(const key of ['frames','hz','gap'])$(key).textContent='—';$('quality').textContent='正在读取质量报告…';$('position').textContent='— / — 帧';for(const key of ['joint-chart','gap-chart'])$(key).innerHTML='<div class="chart-empty">正在读取真实数据…</div>';$('notice').textContent='正在读取样本与质量报告…';$('title').textContent=id;$('status').textContent='读取中';renderList();controls();
+  try{const result=await R.api('/api/episodes/'+encodeURIComponent(id));if(n!==request||selected!==id)return;detail=result;signature=JSON.stringify(state.episodes.find(e=>e.id===id)||{});renderDetail();}
+  catch(error){if(n!==request)return;$('notice').textContent='样本加载失败：'+error.message;clearFrames('样本读取失败');R.toast(error.message,true);controls();}
+ }
+ async function review(decision){
+  if(!state.connected||!detail||busy||(decision==='accept'&&!canAccept()))return;
+  busy=true;controls();const id=selected;
+  try{await R.post('/api/episodes/'+encodeURIComponent(id)+'/review',{decision,note:$('note').value.trim()});R.toast(decision==='accept'?'已接受此成功示教':'已拒绝此样本，原始数据仍保留');await R.refresh();if(selected===id)await select(id,true);}
+  catch(error){R.toast(error.message,true);}finally{busy=false;controls();}
+ }
+ function renderExports(){
+  const key=JSON.stringify([state.connected,state.exports]);if(key===lastExports)return;lastExports=key;
+  $('exports').classList.toggle('empty',!state.connected||!state.exports.length);
+  if(!state.connected||!state.exports.length){$('exports').textContent=state.connected?'尚无导出任务。接受成功示教后，可在这里生成训练数据集。':'等待机器人连接后查看导出任务';return;}
+  $('exports').innerHTML=state.exports.map(e=>'<div class="lib-export-job"><div><strong>'+esc(e.name||e.id)+'</strong><small>'+esc(date(e.created_at))+' · '+esc(fmt(e.episodes,0))+' 段 / '+esc(fmt(e.frames,0))+' 帧</small></div>'+pill(e.status)+'<div class="lib-export-path">'+esc(e.path||'任务完成后显示数据盘路径')+'</div>'+(e.error?'<div class="lib-export-error">导出失败：'+esc(e.error)+'</div>':'')+'</div>').join('');
+ }
+ $('filter').addEventListener('change',renderList);
+ $('list').addEventListener('click',ev=>{const button=ev.target.closest('button[data-id]');if(button&&state.connected)select(button.dataset.id);});
+ $('scrubber').addEventListener('input',()=>{stopPlay();const count=detail?.frame_count||0;$('position').textContent=`${Number($('scrubber').value)+1} / ${count} 帧`;controls();clearTimeout(frameTimer);frameTimer=setTimeout(frame,90);});
+ $('play').addEventListener('click',()=>{if(playing)stopPlay();else startPlay();controls();});
+ $('prev').addEventListener('click',()=>{stopPlay();$('scrubber').value=Number($('scrubber').value)-1;frame();});$('next').addEventListener('click',()=>{stopPlay();$('scrubber').value=Number($('scrubber').value)+1;frame();});
+ $('accept').addEventListener('click',()=>review('accept'));$('reject').addEventListener('click',()=>review('reject'));
+ $('export').addEventListener('click',async()=>{if($('export').disabled)return;exporting=true;controls();try{await R.post('/api/exports',{name:$('export-name').value.trim()});$('export-name').value='';R.toast('导出任务已创建，进度见下方列表');await R.refresh();}catch(error){R.toast(error.message,true);}finally{exporting=false;controls();}});
+ R.on(s=>{const wasConnected=lastConnected;lastConnected=s.connected;state=s;renderList();renderExports();controls();if(!s.connected){$('notice').textContent=detail?'等待机器人连接；当前已显示的数据可能过期。':'等待机器人连接';return;}if(!selected){$('notice').textContent=s.episodes.length?'请从左侧选择一条样本，检查画面和质量。':'尚无采集样本，完成一次录制后再回看。';return;}const updated=s.episodes.find(e=>e.id===selected);if(updated&&detail&&!busy&&signature!==JSON.stringify(updated))select(selected,true);else if(!wasConnected&&detail)renderDetail();});
+})();
+</script>
